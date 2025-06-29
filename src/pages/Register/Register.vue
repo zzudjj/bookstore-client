@@ -42,9 +42,7 @@
               <!-- 👤 账号输入 -->
               <el-form-item prop="account" class="form-item">
                 <div class="input-wrapper">
-                  <div class="input-icon">
-                    <i class="el-icon-message"></i>
-                  </div>
+                  <i class="el-icon-message input-icon"></i>
                   <el-input
                     v-model="ruleForm.account"
                     type="text"
@@ -54,18 +52,18 @@
                     class="register-input"
                     @blur="checkAccountAvailability">
                   </el-input>
-                  <div class="input-status" v-if="accountStatus">
-                    <i :class="accountStatus.icon" :style="{ color: accountStatus.color }"></i>
-                  </div>
+                  <i v-if="accountStatus"
+                     :class="accountStatus.icon"
+                     :style="{ color: accountStatus.color }"
+                     class="input-status">
+                  </i>
                 </div>
               </el-form-item>
 
               <!-- 🔒 密码输入 -->
               <el-form-item prop="password" class="form-item">
                 <div class="input-wrapper">
-                  <div class="input-icon">
-                    <i class="el-icon-lock"></i>
-                  </div>
+                  <i class="el-icon-lock input-icon"></i>
                   <el-input
                     v-model="ruleForm.password"
                     :type="showPassword ? 'text' : 'password'"
@@ -73,13 +71,11 @@
                     autocomplete="new-password"
                     size="large"
                     class="register-input">
-                    <i
-                      slot="suffix"
-                      :class="showPassword ? 'el-icon-view' : 'el-icon-view-off'"
-                      @click="togglePassword"
-                      class="password-toggle">
-                    </i>
                   </el-input>
+                  <i :class="showPassword ? 'el-icon-view' : 'el-icon-view-off'"
+                     @click="togglePassword"
+                     class="password-toggle">
+                  </i>
                 </div>
                 <!-- 🔐 密码强度指示器 -->
                 <div class="password-strength" v-if="ruleForm.password">
@@ -99,9 +95,7 @@
               <!-- 🔒 确认密码输入 -->
               <el-form-item prop="rePassword" class="form-item">
                 <div class="input-wrapper">
-                  <div class="input-icon">
-                    <i class="el-icon-circle-check"></i>
-                  </div>
+                  <i class="el-icon-circle-check input-icon"></i>
                   <el-input
                     v-model="ruleForm.rePassword"
                     :type="showConfirmPassword ? 'text' : 'password'"
@@ -109,16 +103,16 @@
                     autocomplete="new-password"
                     size="large"
                     class="register-input">
-                    <i
-                      slot="suffix"
-                      :class="showConfirmPassword ? 'el-icon-view' : 'el-icon-view-off'"
-                      @click="toggleConfirmPassword"
-                      class="password-toggle">
-                    </i>
                   </el-input>
-                  <div class="input-status" v-if="passwordMatchStatus">
-                    <i :class="passwordMatchStatus.icon" :style="{ color: passwordMatchStatus.color }"></i>
-                  </div>
+                  <i :class="showConfirmPassword ? 'el-icon-view' : 'el-icon-view-off'"
+                     @click="toggleConfirmPassword"
+                     class="password-toggle">
+                  </i>
+                  <i v-if="passwordMatchStatus"
+                     :class="passwordMatchStatus.icon"
+                     :style="{ color: passwordMatchStatus.color }"
+                     class="input-status">
+                  </i>
                 </div>
               </el-form-item>
 
@@ -504,10 +498,10 @@ export default {
   max-width: 1200px;
   width: 100%;
   padding: 0 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 60px;
   align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 2;
 }
@@ -577,10 +571,12 @@ export default {
 .register-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 40px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  max-width: 450px;
   animation: slideInRight 0.8s ease-out;
 }
 
@@ -669,17 +665,19 @@ export default {
 
 .input-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
+  width: 100%;
 }
 
 .input-icon {
   position: absolute;
   left: 15px;
-  z-index: 3;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
   color: #bdc3c7;
   font-size: 18px;
   transition: color 0.3s ease;
+  pointer-events: none;
 }
 
 .register-input {
@@ -703,15 +701,18 @@ export default {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.register-input .el-input__inner:focus + .input-icon {
+.input-wrapper:focus-within .input-icon {
   color: #667eea;
 }
 
 .input-status {
   position: absolute;
-  right: 15px;
-  z-index: 3;
+  right: 45px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
   font-size: 18px;
+  pointer-events: none;
 }
 
 .password-toggle {
@@ -719,10 +720,45 @@ export default {
   color: #bdc3c7;
   font-size: 18px;
   transition: color 0.3s ease;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .password-toggle:hover {
   color: #667eea;
+}
+
+/* 确保输入框可点击 */
+.register-input .el-input {
+  position: relative;
+  z-index: 1;
+}
+
+.register-input .el-input__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* 修复Element UI输入框的层级问题 */
+.el-form-item__content {
+  position: relative;
+}
+
+/* 确保图标不会阻挡输入框点击 */
+.input-wrapper .input-icon {
+  pointer-events: none;
+}
+
+.input-wrapper .input-status {
+  pointer-events: none;
+}
+
+.input-wrapper .password-toggle {
+  pointer-events: auto;
 }
 
 /* 🔐 密码强度指示器 */
@@ -923,6 +959,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
   animation: slideInLeft 0.8s ease-out;
 }
 
@@ -998,7 +1035,7 @@ export default {
 
 @media (max-width: 992px) {
   .register-container {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 40px;
     max-width: 500px;
   }
