@@ -30,8 +30,8 @@
 </template>
 
 <script>
-    import Nav from "../../components/Common/Nav";
-    import Footer from "../../components/Common/Footer";
+    import Nav from "../../components/Common/BaseNavigation";
+    import Footer from "../../components/Common/BaseFooter";
     import {reqRegister,reqAccountVerify} from "../../api/user";
 
     export default {

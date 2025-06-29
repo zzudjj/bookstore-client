@@ -1,161 +1,544 @@
 <template>
-  <div style="width: 100%;background-color: #f7f7f6;min-width: 1240px">
+  <div class="modern-user-home">
+    <!-- 🧭 导航栏 -->
     <Nav></Nav>
-    <HeadNav></HeadNav>
-    <div class="content">
-      <div class="title">
-        <a href="#">首页</a><span> / </span><span>个人中心</span>
-      </div>
-      <div class="content_main">
-        <div class="content_main_left">
-          <div class="uc-box">
-            <div class="uc-nav-box">
-              <div class="box-hd">订单中心</div>
-              <div class="box-bd">
-                <ul class="uc-nav-list">
-                  <a href="#/user/userOrder"><li>我的订单</li></a>
-                  <a href="#/user/evaluate"><li>晒单评价</li></a>
-                </ul>
+
+    <!-- 👤 用户中心主体 -->
+    <main class="user-main">
+      <div class="container">
+
+        <!-- 🍞 面包屑导航 -->
+        <div class="breadcrumb-nav">
+          <el-breadcrumb separator="/">
+            <el-breadcrumb-item :to="{ path: '/' }">
+              <i class="el-icon-house"></i>
+              首页
+            </el-breadcrumb-item>
+            <el-breadcrumb-item>
+              <i class="el-icon-user"></i>
+              个人中心
+            </el-breadcrumb-item>
+          </el-breadcrumb>
+        </div>
+
+        <!-- 📱 用户中心内容 -->
+        <div class="user-content">
+
+          <!-- 📋 侧边导航 -->
+          <aside class="user-sidebar">
+            <div class="user-profile-card">
+              <div class="profile-avatar">
+                <el-avatar :size="60" :src="userInfo.avatar" class="avatar">
+                  <i class="el-icon-user-solid"></i>
+                </el-avatar>
+              </div>
+              <div class="profile-info">
+                <h3 class="username">{{ userInfo.name || '用户' }}</h3>
+                <p class="user-level">普通会员</p>
               </div>
             </div>
-            <div class="uc-nav-box">
-              <div class="box-hd">个人中心</div>
-              <div class="box-bd">
-                <ul class="uc-nav-list">
-                  <a href="#/user/userCenter"><li>我的个人中心</li></a>
-                  <a href="#/user/mesNotice"><li>消息通知</li></a>
-                  <a href="#/cart" target="_blank"><li>购物车</li></a>
-                  <a href="#/user/address"><li>收货地址</li></a>
-                  <a href="#/user/coupon"><li>优惠券</li></a>
-                </ul>
+
+            <!-- 📂 导航菜单 -->
+            <div class="nav-menu">
+
+              <!-- 🏠 个人中心 -->
+              <div class="nav-section">
+                <div class="section-header">
+                  <i class="el-icon-user"></i>
+                  <span>个人中心</span>
+                </div>
+                <div class="nav-items">
+                  <router-link
+                    to="/user/userCenter"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/userCenter' }">
+                    <i class="el-icon-s-home"></i>
+                    <span>我的主页</span>
+                  </router-link>
+                  <router-link
+                    to="/user/userInfo"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/userInfo' }">
+                    <i class="el-icon-edit"></i>
+                    <span>个人资料</span>
+                  </router-link>
+                  <router-link
+                    to="/user/address"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/address' }">
+                    <i class="el-icon-location"></i>
+                    <span>收货地址</span>
+                  </router-link>
+                </div>
               </div>
+
+              <!-- 📦 订单中心 -->
+              <div class="nav-section">
+                <div class="section-header">
+                  <i class="el-icon-box"></i>
+                  <span>订单中心</span>
+                </div>
+                <div class="nav-items">
+                  <router-link
+                    to="/user/userOrder"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/userOrder' }">
+                    <i class="el-icon-document"></i>
+                    <span>我的订单</span>
+                  </router-link>
+                  <router-link
+                    to="/user/evaluate"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/evaluate' }">
+                    <i class="el-icon-star-on"></i>
+                    <span>评价管理</span>
+                  </router-link>
+                </div>
+              </div>
+
+              <!-- 🎁 会员服务 -->
+              <div class="nav-section">
+                <div class="section-header">
+                  <i class="el-icon-present"></i>
+                  <span>会员服务</span>
+                </div>
+                <div class="nav-items">
+                  <router-link
+                    to="/user/coupon"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/coupon' }">
+                    <i class="el-icon-price-tag"></i>
+                    <span>我的优惠券</span>
+                  </router-link>
+                  <router-link
+                    to="/user/mesNotice"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/mesNotice' }">
+                    <i class="el-icon-message"></i>
+                    <span>消息通知</span>
+                  </router-link>
+                </div>
+              </div>
+
+              <!-- 🛠️ 售后服务 -->
+              <div class="nav-section">
+                <div class="section-header">
+                  <i class="el-icon-service"></i>
+                  <span>售后服务</span>
+                </div>
+                <div class="nav-items">
+                  <router-link
+                    to="/user/applyService"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/applyService' }">
+                    <i class="el-icon-phone"></i>
+                    <span>申请服务</span>
+                  </router-link>
+                  <router-link
+                    to="/user/record"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/record' }">
+                    <i class="el-icon-document-copy"></i>
+                    <span>服务记录</span>
+                  </router-link>
+                </div>
+              </div>
+
+              <!-- 🔒 账户安全 -->
+              <div class="nav-section">
+                <div class="section-header">
+                  <i class="el-icon-lock"></i>
+                  <span>账户安全</span>
+                </div>
+                <div class="nav-items">
+                  <router-link
+                    to="/user/pwdManage"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/pwdManage' }">
+                    <i class="el-icon-key"></i>
+                    <span>修改密码</span>
+                  </router-link>
+                </div>
+              </div>
+
             </div>
-            <div class="uc-nav-box">
-              <div class="box-hd">售后服务</div>
-              <div class="box-bd">
-                <ul class="uc-nav-list">
-                  <a href="#/user/record"><li>服务记录</li></a>
-                  <a href="#/user/applyService"><li>申请服务</li></a>
-                </ul>
-              </div>
-            </div>
-            <div class="uc-nav-box">
-              <div class="box-hd">账户管理</div>
-              <div class="box-bd">
-                <ul class="uc-nav-list">
-                  <a href="#/user/userInfo"><li>个人管理</li></a>
-                  <a href="#/user/pwdManage"><li>修改密码</li></a>
-                </ul>
-              </div>
+          </aside>
+
+          <!-- 📄 主要内容区域 -->
+          <div class="user-main-content">
+            <div class="content-wrapper">
+              <router-view></router-view>
             </div>
           </div>
-        </div>
-        <div class="content_main_right">
-          <router-view></router-view>
+
         </div>
       </div>
-    </div>
+    </main>
+
+    <!-- 🦶 页脚 -->
     <Footer></Footer>
   </div>
 </template>
 
 <script>
-    import Nav from "../../components/Common/Nav";
-    import HeadNav from "../../components/Common/HeadNav";
-    import Footer from "../../components/Common/Footer";
+import Nav from "../../components/Common/BaseNavigation";
+import Footer from "../../components/Common/BaseFooter";
 
-    export default {
-        name: "UserHome",
-        components:{Nav,HeadNav,Footer},
-        data(){
-            return{
+export default {
+  name: "UserHome",
+  components: { Nav, Footer },
 
-            }
-        }
+  data() {
+    return {
+      userInfo: {
+        name: '',
+        avatar: '',
+        level: '普通会员'
+      }
+    };
+  },
+
+  computed: {
+    // 获取用户信息
+    currentUser() {
+      return this.$store.getters.getUser || {};
     }
+  },
+
+  methods: {
+    // 初始化用户信息
+    initUserInfo() {
+      const user = this.currentUser;
+      if (user) {
+        this.userInfo = {
+          name: user.name || user.account || '用户',
+          avatar: user.avatar || '',
+          level: user.level || '普通会员'
+        };
+      }
+    }
+  },
+
+  created() {
+    this.initUserInfo();
+  },
+
+  watch: {
+    // 监听路由变化，确保用户信息更新
+    '$store.getters.getUser'() {
+      this.initUserInfo();
+    }
+  }
+}
 </script>
 
 <style scoped>
-  .content{
-    background-color: #f7f7f6;
-    /*background-color: #3df742;*/
-    width: 1240px;
-    margin: 0px auto;
+/* 👤 现代化用户中心样式 */
+
+.modern-user-home {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 📦 通用容器 */
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 🎯 用户中心主体 */
+.user-main {
+  padding: 30px 0 60px;
+}
+
+/* 🍞 面包屑导航 */
+.breadcrumb-nav {
+  background: white;
+  border-radius: 12px;
+  padding: 15px 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.breadcrumb-nav .el-breadcrumb {
+  font-size: 14px;
+}
+
+.breadcrumb-nav .el-breadcrumb__item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.breadcrumb-nav i {
+  font-size: 16px;
+  color: #667eea;
+}
+
+/* 📱 用户中心内容 */
+.user-content {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+/* 📋 侧边导航 */
+.user-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+/* 👤 用户资料卡片 */
+.user-profile-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+}
+
+.profile-avatar {
+  margin-bottom: 15px;
+}
+
+.avatar {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.username {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+.user-level {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 📂 导航菜单 */
+.nav-menu {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.nav-section {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.nav-section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 25px 15px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #2c3e50;
+  background: #f8f9fa;
+}
+
+.section-header i {
+  color: #667eea;
+  font-size: 18px;
+}
+
+.nav-items {
+  padding: 10px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 25px;
+  color: #7f8c8d;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background: #f8f9fa;
+  color: #667eea;
+  transform: translateX(5px);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  color: #667eea;
+  border-left-color: #667eea;
+  font-weight: 500;
+}
+
+.nav-item i {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+/* 📄 主要内容区域 */
+.user-main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.content-wrapper {
+  background: white;
+  border-radius: 16px;
+  min-height: 600px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* 📱 响应式设计 */
+@media (max-width: 1200px) {
+  .container {
+    padding: 0 15px;
   }
-  .title{
-    margin: 0px auto;
-    width: 1240px;
-    /*background-color: #8acfd1;*/
-    height: 40px;
-    line-height: 40px;
+
+  .user-content {
+    flex-direction: column;
+  }
+
+  .user-sidebar {
+    width: 100%;
+  }
+
+  .nav-menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1px;
+    background: #f0f0f0;
+  }
+
+  .nav-section {
+    background: white;
+    border-bottom: none;
+  }
+
+  .nav-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 15px;
+  }
+
+  .nav-item {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    border-left: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-main {
+    padding: 20px 0 40px;
+  }
+
+  .breadcrumb-nav {
+    padding: 12px 20px;
+  }
+
+  .user-profile-card {
+    padding: 20px;
+  }
+
+  .nav-menu {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-items {
+    display: block;
+  }
+
+  .nav-item {
+    min-width: auto;
+    text-align: left;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  .user-content {
+    gap: 20px;
+  }
+
+  .breadcrumb-nav {
+    padding: 10px 15px;
+  }
+
+  .user-profile-card {
+    padding: 15px;
+  }
+
+  .username {
+    font-size: 16px;
+  }
+
+  .section-header {
+    padding: 15px 20px 10px;
     font-size: 14px;
   }
-  .title a{
-    text-decoration: none;
-    color: #333333;
-  }
-  .title a:hover{
-    color: #9d232c;
-  }
 
-  .content_main{
-    margin: 0px auto;
-    background-color: #ffffff;
-    width: 1240px;
+  .nav-item {
+    padding: 10px 20px;
+    font-size: 14px;
   }
+}
 
-  .content_main_left{
-    width: 17%;
-    /*background-color: #f7f7f6;*/
-    float: left;
-    margin-bottom: 30px;
+/* 🎬 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .content_main_right{
-    width: 82%;
-    float: right;
-    background-color: #ffffff;
-    margin-bottom: 30px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .uc-box{
-    padding: 36px 0px;
-    width: 100%;
-    background-color: #ffffff;
-  }
-  .uc-nav-box{
-    margin-bottom: 20px;
-  }
-  .uc-nav-box .box-hd {
-    height: 52px;
-    font-size: 18px;
-    line-height: 52px;
-    padding: 0px 40px;
-  }
-  .uc-nav-box .box-bd {
-    padding: 0px 40px;
-    line-height: 25px;
-  }
-  .uc-nav-list {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-  }
-  .uc-nav-list li {
-    padding: 6px 0px;
-  }
-  .uc-nav-list a{
-    text-decoration: none;
-    color: #999;
-  }
-  .uc-nav-list a:hover{
-    text-decoration: none;
-    color: #15171a;
-  }
-  li {
-    display: list-item;
-    text-align: -webkit-match-parent;
-  }
-  li:hover{
-    background-color: #d9d9d9;
-  }
+}
 
+.user-content {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.nav-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Element UI 组件样式覆盖 */
+.el-breadcrumb__inner a,
+.el-breadcrumb__inner.is-link {
+  color: #667eea !important;
+  font-weight: 500;
+}
+
+.el-breadcrumb__inner a:hover,
+.el-breadcrumb__inner.is-link:hover {
+  color: #764ba2 !important;
+}
+
+.el-breadcrumb__separator {
+  color: #bdc3c7 !important;
+}
 </style>

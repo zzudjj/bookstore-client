@@ -27,8 +27,8 @@
 <script>
 
     import {reqLogin} from "../../api/user";
-    import Nav from "../../components/Common/Nav";
-    import Footer from "../../components/Common/Footer";
+    import Nav from "../../components/Common/BaseNavigation";
+    import Footer from "../../components/Common/BaseFooter";
     import axios from 'axios'
     export default {
         name: "Login",

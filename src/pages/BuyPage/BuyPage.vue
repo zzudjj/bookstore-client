@@ -1,7 +1,7 @@
 <template>
     <div style="background-color: #f7f7f6;width: 100%;min-width: 1240px">
       <Nav></Nav>
-      <HeadNav></HeadNav>
+
       <div class="content">
         <div class="title"><h3>收货地址</h3></div>
         <div class="list_box">
@@ -116,15 +116,15 @@
 </template>
 
 <script>
-    import Nav from "../../components/Common/Nav";
-    import HeadNav from "../../components/Common/HeadNav";
-    import Footer from "../../components/Common/Footer";
+    import Nav from "../../components/Common/BaseNavigation";
+
+    import Footer from "../../components/Common/BaseFooter";
     import {reqGetAddressList,reqAddAddress,reqModAddress} from "../../api/address";
     import {reqInitOrder,reqAddOrder} from "../../api/order";
 
     export default {
         name: "BuyPage",
-        components:{Nav,HeadNav,Footer},
+        components:{Nav,Footer},
         data(){
             return{
                 account: "",

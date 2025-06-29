@@ -2,7 +2,7 @@
 <template>
   <div class="content">
     <Nav></Nav>
-    <HeadNav></HeadNav>
+
     <div class="box book_box">
       <div class="book_img">
         <CarouselBtn :imgList="book.imgSrc"></CarouselBtn>
@@ -70,9 +70,9 @@
 </template>
 
 <script>
-    import Nav from "../../components/Common/Nav";
-    import HeadNav from "../../components/Common/HeadNav";
-    import Footer from "../../components/Common/Footer";
+    import Nav from "../../components/Common/BaseNavigation";
+
+    import Footer from "../../components/Common/BaseFooter";
     import CarouselBtn from "../../components/Index/CarouselBtn";
     import {reqGetBook} from "../../api/book";
     import {reqGetSortList} from "../../api/sort";
@@ -80,7 +80,7 @@
     import 'github-markdown-css'
     export default {
         name: "Book",
-        components:{CarouselBtn, Nav,HeadNav,Footer,CarouselBtn},
+        components:{CarouselBtn, Nav, Footer},
         data(){
             return{
                 result: "",

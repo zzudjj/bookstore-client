@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <Nav></Nav>
-    <HeadNav></HeadNav>
+
     <div class="box">
       <p>秒杀会场</p>
     </div>
@@ -35,12 +35,12 @@
 </template>
 
 <script>
-    import Nav from "../../components/Common/Nav";
-    import HeadNav from "../../components/Common/HeadNav";
-    import Footer from "../../components/Common/Footer";
+    import Nav from "../../components/Common/BaseNavigation";
+
+    import Footer from "../../components/Common/BaseFooter";
     export default {
         name: "Spike",
-        components:{Nav,HeadNav,Footer},
+        components:{Nav,Footer},
         data(){
             return{
                 activeName: 0,

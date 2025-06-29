@@ -1,0 +1,84 @@
+// 📚 书店管理系统 - 设计系统变量
+// ==========================================
+
+// 🎨 色彩规范
+// ------------------------------------------
+
+// 主色调 - 现代书店风格
+$primary-color: #2c3e50;      // 深蓝灰 - 专业稳重
+$secondary-color: #3498db;    // 蓝色 - 科技感
+$accent-color: #e74c3c;       // 红色 - 强调色
+$success-color: #27ae60;      // 绿色 - 成功状态
+$warning-color: #f39c12;      // 橙色 - 警告状态
+$error-color: #e74c3c;        // 红色 - 错误状态
+
+// 中性色
+$text-primary: #2c3e50;       // 主要文字
+$text-secondary: #7f8c8d;     // 次要文字
+$text-disabled: #bdc3c7;      // 禁用文字
+$border-color: #ecf0f1;       // 边框色
+$background-light: #f8f9fa;   // 浅背景
+$background-dark: #2c3e50;    // 深背景
+
+// 🔤 字体规范
+// ------------------------------------------
+
+// 字体家族
+$font-family-primary: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+$font-family-code: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+
+// 字体大小
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
+$font-size-xxxl: 32px;
+
+// 字体粗细
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// 📐 间距规范
+// ------------------------------------------
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-base: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// 📱 响应式断点
+// ------------------------------------------
+
+$breakpoint-xs: 480px;   // 手机
+$breakpoint-sm: 768px;   // 平板
+$breakpoint-md: 1024px;  // 小屏电脑
+$breakpoint-lg: 1200px;  // 大屏电脑
+$breakpoint-xl: 1600px;  // 超大屏
+
+// 🎭 阴影规范
+// ------------------------------------------
+
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+$shadow-base: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+$shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+
+// 🔄 动画规范
+// ------------------------------------------
+
+$transition-fast: 0.15s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// 📏 边框圆角
+// ------------------------------------------
+
+$border-radius-sm: 4px;
+$border-radius-base: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;

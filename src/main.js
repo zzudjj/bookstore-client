@@ -8,6 +8,9 @@ import 'element-ui/lib/theme-chalk/index.css';
 import store from './store/store'
 import axios from 'axios'
 
+// 引入全局样式 (暂时注释，等SCSS配置完成)
+// import './assets/styles/global.scss'
+
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 //引入echarts

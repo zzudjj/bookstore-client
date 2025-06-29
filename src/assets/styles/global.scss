@@ -1,0 +1,243 @@
+// 📚 书店管理系统 - 全局样式
+// ==========================================
+
+@import './variables.scss';
+@import './mixins.scss';
+
+// 🔄 重置样式
+// ------------------------------------------
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  line-height: 1.6;
+  color: $text-primary;
+  background-color: $background-light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 🔗 链接样式
+// ------------------------------------------
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-base;
+  
+  &:hover {
+    color: $secondary-color;
+  }
+  
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// 🎯 按钮基础样式
+// ------------------------------------------
+
+.btn {
+  @include button-base;
+  
+  &--primary {
+    @include button-primary;
+  }
+  
+  &--secondary {
+    @include button-secondary;
+  }
+  
+  &--small {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+  }
+  
+  &--large {
+    padding: $spacing-base $spacing-lg;
+    font-size: $font-size-lg;
+  }
+}
+
+// 📦 卡片基础样式
+// ------------------------------------------
+
+.card {
+  @include card-base;
+  
+  &__content {
+    @include card-content;
+  }
+  
+  &--hover {
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-lg;
+    }
+  }
+}
+
+// 📐 布局工具类
+// ------------------------------------------
+
+.container {
+  @include container;
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+// 📱 响应式工具类
+// ------------------------------------------
+
+.hidden-mobile {
+  @include respond-to(sm) {
+    display: none !important;
+  }
+}
+
+.hidden-desktop {
+  display: none !important;
+  
+  @include respond-to(sm) {
+    display: block !important;
+  }
+}
+
+// 🎨 间距工具类
+// ------------------------------------------
+
+.mt-xs { margin-top: $spacing-xs; }
+.mt-sm { margin-top: $spacing-sm; }
+.mt-base { margin-top: $spacing-base; }
+.mt-lg { margin-top: $spacing-lg; }
+.mt-xl { margin-top: $spacing-xl; }
+
+.mb-xs { margin-bottom: $spacing-xs; }
+.mb-sm { margin-bottom: $spacing-sm; }
+.mb-base { margin-bottom: $spacing-base; }
+.mb-lg { margin-bottom: $spacing-lg; }
+.mb-xl { margin-bottom: $spacing-xl; }
+
+.ml-xs { margin-left: $spacing-xs; }
+.ml-sm { margin-left: $spacing-sm; }
+.ml-base { margin-left: $spacing-base; }
+.ml-lg { margin-left: $spacing-lg; }
+.ml-xl { margin-left: $spacing-xl; }
+
+.mr-xs { margin-right: $spacing-xs; }
+.mr-sm { margin-right: $spacing-sm; }
+.mr-base { margin-right: $spacing-base; }
+.mr-lg { margin-right: $spacing-lg; }
+.mr-xl { margin-right: $spacing-xl; }
+
+.pt-xs { padding-top: $spacing-xs; }
+.pt-sm { padding-top: $spacing-sm; }
+.pt-base { padding-top: $spacing-base; }
+.pt-lg { padding-top: $spacing-lg; }
+.pt-xl { padding-top: $spacing-xl; }
+
+.pb-xs { padding-bottom: $spacing-xs; }
+.pb-sm { padding-bottom: $spacing-sm; }
+.pb-base { padding-bottom: $spacing-base; }
+.pb-lg { padding-bottom: $spacing-lg; }
+.pb-xl { padding-bottom: $spacing-xl; }
+
+.pl-xs { padding-left: $spacing-xs; }
+.pl-sm { padding-left: $spacing-sm; }
+.pl-base { padding-left: $spacing-base; }
+.pl-lg { padding-left: $spacing-lg; }
+.pl-xl { padding-left: $spacing-xl; }
+
+.pr-xs { padding-right: $spacing-xs; }
+.pr-sm { padding-right: $spacing-sm; }
+.pr-base { padding-right: $spacing-base; }
+.pr-lg { padding-right: $spacing-lg; }
+.pr-xl { padding-right: $spacing-xl; }
+
+// 🎭 动画类
+// ------------------------------------------
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity $transition-base;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform $transition-base;
+}
+
+.slide-up-enter,
+.slide-up-leave-to {
+  transform: translateY(20px);
+}
+
+// 🔤 文字工具类
+// ------------------------------------------
+
+.text-ellipsis {
+  @include text-ellipsis;
+}
+
+.text-clamp-2 {
+  @include text-clamp(2);
+}
+
+.text-clamp-3 {
+  @include text-clamp(3);
+}
+
+// 字体大小
+.text-xs { font-size: $font-size-xs; }
+.text-sm { font-size: $font-size-sm; }
+.text-base { font-size: $font-size-base; }
+.text-lg { font-size: $font-size-lg; }
+.text-xl { font-size: $font-size-xl; }
+.text-xxl { font-size: $font-size-xxl; }
+
+// 字体粗细
+.font-light { font-weight: $font-weight-light; }
+.font-normal { font-weight: $font-weight-normal; }
+.font-medium { font-weight: $font-weight-medium; }
+.font-bold { font-weight: $font-weight-bold; }
+
+// 文字颜色
+.text-primary { color: $text-primary; }
+.text-secondary { color: $text-secondary; }
+.text-disabled { color: $text-disabled; }
+.text-success { color: $success-color; }
+.text-warning { color: $warning-color; }
+.text-error { color: $error-color; }

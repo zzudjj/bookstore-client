@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Login from "../pages/Login/Login";
 import Index from "../pages/Index/Index";
-import AxiosTest from "../components/AxiosTest";
+
 import UserHome from "../pages/UserHome/UserHome";
 import Book from "../pages/Book/Book";
 import Register from "../pages/Register/Register";
@@ -24,20 +24,15 @@ import UserList from "../components/AdminHome/authority/UserList";
 import AdminHome from "../components/AdminHome/AdminHome";
 import BookTopicSet from "../components/AdminHome/bookNav/topic/BookTopicSet";
 import Search from "../pages/Search/Search";
-import Upload from "../components/Upload";
-import Upload2 from "../components/Upload2";
 import Upload3 from "../components/Upload3";
 import Cart from "../pages/Cart/Cart";
-import CheckBoxTest from "../components/Test/CheckBoxTest";
-import cascaderTest from "../components/Test/cascaderTest";
-import Blog from "../components/Test/Blog";
+
 import AddSort from "../components/AdminHome/bookNav/sort/components/SortDetail";
 import Publish from "../components/AdminHome/bookNav/publish/Publish";
-import RouterTest from "../components/Test/RouterTest";
-import TestRouter from "../components/Test/TestRouter";
+
 import AddPublish from "../components/AdminHome/bookNav/publish/AddPublish";
 import UpdatePublish from "../components/AdminHome/bookNav/publish/UpdatePublish";
-import SwitchTest from "../components/Test/SwitchTest";
+
 import UpdateFirstSort from "../components/AdminHome/bookNav/sort/UpdateFirstSort";
 import UpdateSecondSort from "../components/AdminHome/bookNav/sort/UpdateSecondSort";
 import FirstSortList from "../components/AdminHome/bookNav/sort/FirstSortList";
@@ -69,17 +64,26 @@ export default new Router({
     {
       path: '/',
       name: 'Index',
-      component: Index
+      component: Index,
+      meta: {
+        requiresAuth: false  // 首页不需要认证
+      }
     },
     {
       path: '/login',
       name: 'Login',
-      component: Login
+      component: Login,
+      meta: {
+        requiresAuth: false  // 登录页面不需要认证
+      }
     },
     {
       path: "/register",
       name: 'Register',
-      component: Register
+      component: Register,
+      meta: {
+        requiresAuth: false  // 注册页面不需要认证
+      }
     },
     {
       path: '/admin',
@@ -476,17 +480,6 @@ export default new Router({
 
 
 
-    //下面的是一些测试页面的路由
-    {
-      path: '/upload',
-      name: 'Upload',
-      component: Upload
-    },
-    {
-      path: '/upload2',
-      name: 'Upload2',
-      component: Upload2
-    },
     {
       path: '/upload3',
       name: 'upload3',
@@ -512,40 +505,6 @@ export default new Router({
         requiresUser: true,
       },
     },
-    {
-      path: '/check',
-      name: 'CheckBoxTest',
-      component: CheckBoxTest
-    },
-    {
-      path: '/eas',
-      name: 'cascaderTest',
-      component: cascaderTest
-    },
-    {
-      path: '/blog',
-      name: "blog",
-      component: Blog
-    },
-    {
-      path: '/routerTest',
-      name: 'RouterTest',
-      component: RouterTest
-    },
-    {
-      path: '/testRouter',
-      name: 'TestRouter',
-      component: TestRouter
-    },
-    {
-      path: '/switch',
-      name: 'SwitchTest',
-      component: SwitchTest
-    },
-    {
-      path: "/axiosTest",
-      name: "AxiosTest",
-      component: AxiosTest
-    }
+
   ]
 })

@@ -2,7 +2,7 @@
 <template>
   <div class="content">
     <Nav></Nav>
-    <HeadNav></HeadNav>
+
     <div class="bg" v-bind:style="{backgroundImage:'url(' + bookTopic.cover + ')'}"></div>
     <div class="box">
       <p>{{bookTopic.subTitle}}</p>
@@ -29,14 +29,14 @@
 </template>
 
 <script>
-    import Nav from "../../components/Common/Nav";
-    import HeadNav from "../../components/Common/HeadNav";
-    import Footer from "../../components/Common/Footer";
+    import Nav from "../../components/Common/BaseNavigation";
+
+    import Footer from "../../components/Common/BaseFooter";
     import {reqGetTopicBookList} from "../../api/bookTopic";
 
     export default {
         name: "BookTopic",
-        components:{Nav,HeadNav,Footer},
+        components:{Nav,Footer},
         data(){
             return{
                 topicId: null,
