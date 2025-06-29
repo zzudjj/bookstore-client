@@ -1,6 +1,6 @@
 import ajax from "./ajax";
 
-const BASE_URL = 'http://localhost:8082'
+const BASE_URL = ''  // 移除重复的/api前缀
 
 //添加图书到购物车
 export const reqAddCart = (account,id,num) => ajax(BASE_URL+'/addCart', {account,id,num})

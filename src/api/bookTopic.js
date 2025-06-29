@@ -1,6 +1,6 @@
 import ajax from "./ajax";
 
-const BASE_URL = 'http://localhost:8082/topic'
+const BASE_URL = '/topic'  // 移除重复的/api前缀
 
 
 

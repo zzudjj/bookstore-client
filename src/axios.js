@@ -4,7 +4,7 @@ import router from './router'
 import store from './store/store'
 import { Message } from 'element-ui'
 
-axios.defaults.baseURL = "http://localhost:8082"
+axios.defaults.baseURL = "/api"
 
 // 前置拦截
 axios.interceptors.request.use(config => {

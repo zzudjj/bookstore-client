@@ -227,7 +227,7 @@
                     formData.append("operator",this.operator);
                     axios({
                         method: 'POST',
-                        url: 'http://localhost:8082/batchDel',
+                        url: '/api/batchDel',
                         data: formData
                     }).then((response) => {
                         if(response.data.code==200){

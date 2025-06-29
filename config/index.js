@@ -13,7 +13,7 @@ module.exports = {
     proxyTable: {
       '/api': {
         //target: 'http://47.100.236.223:1211/',
-        target: 'http://localhost:8080/',
+        target: 'https://bd1a2ba49f724c.lhr.life',
         changeOrigin: true,
         ws: true,
         pathRewrite: {
@@ -23,12 +23,13 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '0.0.0.0', // can be overwritten by process.env.HOST
     port: 8081, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
+    disableHostCheck: true, // 允许外部访问，解决ngrok等内网穿透工具的Host header问题
 
 
     /**

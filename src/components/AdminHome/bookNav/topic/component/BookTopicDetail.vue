@@ -70,8 +70,8 @@
                 }, 1000);
             };
             return {
-                addUrl:'http://localhost:8082/addTopic',
-                modifyUrl:'http://localhost:8082/uploadTopicImg',
+                addUrl:'/api/addTopic',
+                modifyUrl:'/api/uploadTopicImg',
                 auto: false,
 
                 fileList: [],

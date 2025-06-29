@@ -1,6 +1,6 @@
 import ajax from "./ajax";
 
-const BASE_URL = 'http://localhost:8082/sort'
+const BASE_URL = '/sort'  // 移除重复的/api前缀
 
 //添加图书分类
 export const reqAddBookSort = (bookSort) => ajax(BASE_URL+'/addBookSort', {

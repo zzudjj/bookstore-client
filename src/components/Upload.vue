@@ -1,7 +1,7 @@
 <template>
     <div class="content">
       <el-upload
-        action="http://localhost:8082/batch"
+        action="/api/batch"
         list-type="picture-card"
         :on-preview="handlePictureCardPreview"
         :on-success="handleSuccess"

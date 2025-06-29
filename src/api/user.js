@@ -29,10 +29,10 @@ function ajax1 (url, data={}, method='GET') {
   })
 }
 import ajax from "./ajax";
-const BASE_URL = 'http://localhost:8082'
+const BASE_URL = ''  // 移除重复的/api前缀，因为axios已经配置了baseURL
 
 //登录
-export const reqLogin = ({account, password}) => ajax1('http://localhost:8082/login', {account, password}, 'POST')
+export const reqLogin = ({account, password}) => ajax1('/login', {account, password}, 'POST')  // 移除重复的/api
 
 // 检测该邮箱账号是否已经被注册
 export const reqAccountVerify = ({account})=>ajax(BASE_URL+'/user/accountVerify',{account})

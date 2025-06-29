@@ -38,13 +38,9 @@
                 if (!value) {
                     return callback(new Error('账号不能为空'));
                 }
-                setTimeout(() => {
-                    if(value.length>13){
-                        callback(new Error('账号不能大于13位'));
-                    }else {
-                        callback();
-                    }
-                }, 1000);
+                // 移除不合理的长度限制，因为邮箱地址通常会超过13位
+                // 如果需要验证邮箱格式，应该使用邮箱格式验证
+                callback();
             };
             var validatePass = (rule, value, callback) => {
                 if (value === '') {

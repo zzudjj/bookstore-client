@@ -403,7 +403,7 @@ export default new Router({
         },
         {
           path: 'coupon',
-          name: "Coupon",
+          name: "UserCoupon",
           component: UserCoupon
         },
         {

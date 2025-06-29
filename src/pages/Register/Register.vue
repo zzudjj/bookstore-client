@@ -39,21 +39,27 @@
         components: {Nav,Footer},
         data() {
             let checkAccount = (rule, value, callback) => {
-                reqAccountVerify(value).then((response)=>{
-                    if(response.data.code=200){
+                if (!value) {
+                    callback(new Error('请输入邮箱'));
+                    return;
+                }
+                reqAccountVerify({account: value}).then((response)=>{
+                    if(response.code===200){
+                        // 200表示账号可以注册，验证通过
                         callback();
                     }else{
-                        callback(response.data.message);
+                        // 非200表示账号已被注册或其他错误
+                        callback(new Error(response.message || '该账号已被注册'));
                     }
                 }).catch(err=>{
-                    callback();
+                    callback(new Error('验证账号时出错，请重试'));
                 })
             };
             let validatePass = (rule, value, callback) => {
                 if (value === '') {
                     callback(new Error('请输入密码'));
-                } else if(value.length<3) {
-                    callback(new Error('密码长度不能小于8'));
+                } else if(value.length<8) {
+                    callback(new Error('密码长度不能小于8位'));
                 }else {
                     callback();
                 }

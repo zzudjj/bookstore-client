@@ -1,6 +1,6 @@
 import ajax from "./ajax";
 
-const BASE_URL = 'http://localhost:8082/book'
+const BASE_URL = '/book'  // 移除重复的/api前缀
 
 //添加出版社newProduct: true,
 //                 recommend
