@@ -35,7 +35,7 @@
           <!-- 图书封面 -->
           <div class="book-cover">
             <el-image
-              :src="item.coverImg || defaultCover"
+              :src="getBookCoverUrl(item.coverImg) || defaultCover"
               fit="cover"
               class="cover-image"
               :alt="item.bookName">
@@ -110,6 +110,7 @@
 <script>
 import GalleryBook from "./BookGallery";
 import {reqGetSortBookList} from "../../api/book";
+import {getBookCoverUrl} from "../../utils/imageUtils";
 
 export default {
   name: "BookCard",
@@ -197,13 +198,18 @@ export default {
           message: "获取图书列表数据失败"
         });
       });
+    },
+
+    // 获取图书封面完整URL
+    getBookCoverUrl(coverImg) {
+      return getBookCoverUrl(coverImg);
     }
   },
 
   created() {
     this.getSortBookList();
   }
-    }
+}
 </script>
 
 <style scoped>

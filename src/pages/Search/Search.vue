@@ -89,7 +89,7 @@
                   <div class="book-cover-container">
                     <router-link :to="{path: '/book', query: {id: book.id}}" class="book-cover-link">
                       <el-image
-                        :src="book.coverImg"
+                        :src="getBookCoverUrl(book.coverImg)"
                         fit="cover"
                         class="book-cover-image"
                         :alt="book.bookName">
@@ -170,7 +170,7 @@
                     <div class="book-cover">
                       <router-link :to="{path: '/book', query: {id: book.id}}">
                         <el-image
-                          :src="book.coverImg"
+                          :src="getBookCoverUrl(book.coverImg)"
                           fit="cover"
                           class="cover-image"
                           :alt="book.bookName">
@@ -258,6 +258,7 @@ import Nav from "../../components/Common/BaseNavigation";
 import Footer from "../../components/Common/BaseFooter";
 import {reqGetSortList} from "../../api/sort";
 import {reqGetBookListBySort} from "../../api/book";
+import {getBookCoverUrl} from "../../utils/imageUtils";
 
 export default {
   name: "Search",
@@ -345,6 +346,11 @@ export default {
     // 返回首页
     goToHome() {
       this.$router.push('/');
+    },
+
+    // 获取图书封面完整URL
+    getBookCoverUrl(coverImg) {
+      return getBookCoverUrl(coverImg);
     }
   },
 

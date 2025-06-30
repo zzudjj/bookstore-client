@@ -23,7 +23,7 @@
               </div>
               <div class="bookInfo">
                 <div class="book_item">
-                  <el-image class="bookImg" v-for="(img,index) in order.coverImgList" :src="img" :key="index" fit="fill"></el-image>
+                  <el-image class="bookImg" v-for="(img,index) in order.coverImgList" :src="getImageUrl(img)" :key="index" fit="fill"></el-image>
                 </div>
                 <div class="book_action">
                   <button class="plainBtn" @click="goToOrderDetail(order.id)">订单详情</button>
@@ -62,7 +62,7 @@
               </div>
               <div class="bookInfo">
                 <div class="book_item">
-                  <el-image class="bookImg" v-for="(img,index) in order.coverImgList" :src="img" :key="index" fit="fill"></el-image>
+                  <el-image class="bookImg" v-for="(img,index) in order.coverImgList" :src="getImageUrl(img)" :key="index" fit="fill"></el-image>
                 </div>
                 <div class="book_action">
                   <button class="plainBtn" @click="goToOrderDetail(order.id)">订单详情</button>
@@ -96,7 +96,7 @@
               </div>
               <div class="bookInfo">
                 <div class="book_item">
-                  <el-image class="bookImg" v-for="(img,index) in order.coverImgList" :src="img" :key="index" fit="fill"></el-image>
+                  <el-image class="bookImg" v-for="(img,index) in order.coverImgList" :src="getImageUrl(img)" :key="index" fit="fill"></el-image>
                 </div>
                 <div class="book_action">
                   <button class="plainBtn" @click="goToOrderDetail(order.id)">订单详情</button>
@@ -131,6 +131,7 @@
 <script>
 // <!--  reqUserGetOrderList-->
     import {reqUserGetOrderList,reqModOrderStatus} from "../../../api/order";
+    import {getImageUrl} from "../../../utils/imageUtils";
 // <!--用户订单页面-->
     export default {
         name: "UserOrder",
@@ -299,6 +300,10 @@
                     })
                 });
             },
+            // 获取图片完整URL
+            getImageUrl(imagePath) {
+                return getImageUrl(imagePath);
+            }
         }
     }
 </script>

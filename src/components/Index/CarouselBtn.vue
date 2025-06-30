@@ -3,7 +3,7 @@
     <el-carousel :interval="5000" arrow="always" height="430px" indicator-position="outside">
       <el-carousel-item v-for="item in imgList" :key="item">
         <div style="padding: 5px 75px;height: 100%;width: 100%">
-          <img v-bind:src="item" alt="图片">
+          <img v-bind:src="getImageUrl(item)" alt="图片">
         </div>
       </el-carousel-item>
     </el-carousel>
@@ -11,6 +11,7 @@
 </template>
 
 <script>
+    import {getImageUrl} from "../../utils/imageUtils";
     export default {
         name: "CarouselBtn",
         props:{
@@ -25,6 +26,12 @@
                     "static/image/21.jpg",
                     "static/image/22.jpg",
                     "static/image/23.jpg"]
+            }
+        },
+        methods: {
+            // 获取图片完整URL
+            getImageUrl(imagePath) {
+                return getImageUrl(imagePath);
             }
         },
         created() {

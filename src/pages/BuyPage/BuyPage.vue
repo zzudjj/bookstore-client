@@ -31,7 +31,7 @@
         <div class="list_box" v-for="book in OrderInitDto.bookList">
           <div class="bookInfo">
             <div class="book_item">
-              <el-image class="bookImg" :src="book.coverImg" fit="fill"></el-image>
+              <el-image class="bookImg" :src="getBookCoverUrl(book.coverImg)" fit="fill"></el-image>
               <div class="book_detail">
                 <p>{{book.bookName}} {{book.author}}</p>
               </div>
@@ -121,6 +121,7 @@
     import Footer from "../../components/Common/BaseFooter";
     import {reqGetAddressList,reqAddAddress,reqModAddress} from "../../api/address";
     import {reqInitOrder,reqAddOrder} from "../../api/order";
+    import {getBookCoverUrl} from "../../utils/imageUtils";
 
     export default {
         name: "BuyPage",
@@ -385,6 +386,10 @@
                         type: "warning"
                     })
                 })
+            },
+            // 获取图书封面完整URL
+            getBookCoverUrl(coverImg) {
+                return getBookCoverUrl(coverImg);
             }
 
 

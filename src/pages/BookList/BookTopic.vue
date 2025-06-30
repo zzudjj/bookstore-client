@@ -3,7 +3,7 @@
   <div class="content">
     <Nav></Nav>
 
-    <div class="bg" v-bind:style="{backgroundImage:'url(' + bookTopic.cover + ')'}"></div>
+    <div class="bg" v-bind:style="{backgroundImage:'url(' + getImageUrl(bookTopic.cover) + ')'}"></div>
     <div class="box">
       <p>{{bookTopic.subTitle}}</p>
     </div>
@@ -13,7 +13,7 @@
         <div class="book_img">
           <el-image
             style="width: 115px; height: 160px;vertical-align: middle;"
-            :src="item.coverImg"
+            :src="getBookCoverUrl(item.coverImg)"
             fit="fill"></el-image>
         </div>
         <div class="info_box">
@@ -33,6 +33,7 @@
 
     import Footer from "../../components/Common/BaseFooter";
     import {reqGetTopicBookList} from "../../api/bookTopic";
+    import {getImageUrl, getBookCoverUrl} from "../../utils/imageUtils";
 
     export default {
         name: "BookTopic",
@@ -66,6 +67,16 @@
                     console.log(err);
                 })
             },
+
+            // 获取图片完整URL
+            getImageUrl(imagePath) {
+                return getImageUrl(imagePath);
+            },
+
+            // 获取图书封面完整URL
+            getBookCoverUrl(coverImg) {
+                return getBookCoverUrl(coverImg);
+            }
 
         }
 

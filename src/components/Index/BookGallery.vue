@@ -5,7 +5,7 @@
         <router-link :to="{path: '/book',query:{id:item.id}}">
         <el-image
           style="width: 82%; height: 190px;margin:5px 9%"
-          :src="item.coverImg"
+          :src="getBookCoverUrl(item.coverImg)"
           fit="fill"></el-image>
         <div style="width: 86%;margin: 0px 7%">
           <a href="#" class="gallery-book_text">
@@ -27,6 +27,7 @@
 
 <script>
     import {reqGetRecBookList} from "../../api/book";
+    import {getBookCoverUrl} from "../../utils/imageUtils";
     export default {
         name: "GalleryBook",
         data(){
@@ -116,6 +117,10 @@
                         message: "获取图书列表数据失败"
                     })
                 })
+            },
+            // 获取图书封面完整URL
+            getBookCoverUrl(coverImg) {
+                return getBookCoverUrl(coverImg);
             }
         },
         created() {

@@ -100,7 +100,7 @@
                 <div class="item-info">
                   <div class="item-image">
                     <el-image
-                      :src="item.coverImg"
+                      :src="getBookCoverUrl(item.coverImg)"
                       fit="cover"
                       class="book-cover"
                       :alt="item.bookName">
@@ -251,6 +251,7 @@
 import Nav from "../../components/Common/BaseNavigation";
 import Footer from "../../components/Common/BaseFooter";
 import {reqGetCartList, reqModCart, reqDelCart} from "../../api/cart";
+import {getBookCoverUrl} from "../../utils/imageUtils";
 
 export default {
   name: "Cart",
@@ -460,6 +461,11 @@ export default {
           }
         });
       }
+    },
+
+    // 获取图书封面完整URL
+    getBookCoverUrl(coverImg) {
+      return getBookCoverUrl(coverImg);
     }
   },
 
