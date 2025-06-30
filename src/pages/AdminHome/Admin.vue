@@ -1,7 +1,7 @@
 <template>
   <!-- 🏪 现代化管理后台 -->
   <div class="modern-admin-layout">
-    <el-container class="admin-container">
+    <el-container class="admin-container" direction="horizontal">
 
       <!-- 📂 侧边导航栏 -->
       <el-aside class="admin-sidebar" :width="sidebarWidth + 'px'">
@@ -142,6 +142,8 @@
 
       </el-aside>
 
+      <!-- 📄 主内容区域 -->
+      <el-container class="main-container" direction="vertical">
 
         <!-- 🎯 顶部导航栏 -->
         <el-header class="admin-header">
@@ -255,7 +257,7 @@ export default {
   data() {
     return {
       isCollapsed: false,
-      defaultOpeneds: ['books', 'orders', 'marketing', 'authority'],
+      defaultOpeneds: [],
       breadList: [],
       isDarkTheme: false,
       userAvatar: '',
@@ -738,6 +740,17 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   min-height: calc(100vh - 152px);
   padding: 24px;
+  overflow-x: auto;
+}
+
+/* 📊 表格响应式处理 */
+.main-content .el-table {
+  width: 100%;
+  min-width: 800px;
+}
+
+.main-content .el-table__body-wrapper {
+  overflow-x: auto;
 }
 
 /* 📱 响应式设计 */
@@ -792,6 +805,17 @@ export default {
   .main-content {
     padding: 12px;
     border-radius: 6px;
+  }
+
+  /* 📱 移动端表格优化 */
+  .main-content .el-table {
+    min-width: 600px;
+    font-size: 12px;
+  }
+
+  .main-content .el-table th,
+  .main-content .el-table td {
+    padding: 8px 4px;
   }
 }
 

@@ -1,129 +1,111 @@
 <template>
-  <!-- 📝 现代化注册页面 -->
-  <div class="modern-register-page">
+  <!-- 🔐 现代化注册页面 -->
+  <div class="modern-login-page">
     <!-- 🧭 导航栏 -->
     <Nav></Nav>
 
     <!-- 🎨 注册主体区域 -->
-    <main class="register-main">
-      <div class="register-container">
+    <main class="login-main">
+      <div class="login-container">
 
         <!-- 🌟 背景装饰 -->
         <div class="background-decoration">
           <div class="decoration-circle circle-1"></div>
           <div class="decoration-circle circle-2"></div>
           <div class="decoration-circle circle-3"></div>
-          <div class="decoration-circle circle-4"></div>
         </div>
 
         <!-- 📱 注册卡片 -->
-        <div class="register-card">
+        <div class="login-card">
 
           <!-- 🎯 注册头部 -->
-          <div class="register-header">
+          <div class="login-header">
             <div class="logo-section">
               <div class="logo-icon">
                 <i class="el-icon-user-solid"></i>
               </div>
-              <h1 class="register-title">创建账户</h1>
-              <p class="register-subtitle">加入我们，开启阅读之旅</p>
+              <h1 class="login-title">创建账户</h1>
+              <p class="login-subtitle">加入我们，开启阅读之旅</p>
             </div>
           </div>
 
           <!-- 📝 注册表单 -->
-          <div class="register-form-section">
+          <div class="login-form-section">
             <el-form
               :model="ruleForm"
               :rules="rules"
               ref="ruleForm"
-              class="register-form"
+              class="login-form"
               @submit.native.prevent="submitForm('ruleForm')">
 
               <!-- 👤 账号输入 -->
               <el-form-item prop="account" class="form-item">
-                <el-input
-                  v-model="ruleForm.account"
-                  type="text"
-                  placeholder="请输入手机号或邮箱"
-                  autocomplete="username"
-                  size="large"
-                  class="register-input"
-                  @blur="checkAccountAvailability">
-                  <i slot="prefix" class="el-icon-message"></i>
-                  <i v-if="accountStatus"
-                     slot="suffix"
-                     :class="accountStatus.icon"
-                     :style="{ color: accountStatus.color }">
-                  </i>
-                </el-input>
+                <div class="input-wrapper">
+                  <div class="input-icon">
+                    <i class="el-icon-user"></i>
+                  </div>
+                  <el-input
+                    v-model="ruleForm.account"
+                    type="text"
+                    placeholder="请输入手机号或邮箱"
+                    autocomplete="username"
+                    size="large"
+                    class="login-input"
+                    @blur="checkAccountAvailability">
+                  </el-input>
+                </div>
               </el-form-item>
 
               <!-- 🔒 密码输入 -->
               <el-form-item prop="password" class="form-item">
-                <el-input
-                  v-model="ruleForm.password"
-                  :type="showPassword ? 'text' : 'password'"
-                  placeholder="请输入密码"
-                  autocomplete="new-password"
-                  size="large"
-                  class="register-input">
-                  <i slot="prefix" class="el-icon-lock"></i>
-                  <i slot="suffix"
-                     :class="showPassword ? 'el-icon-view' : 'el-icon-view-off'"
-                     @click="togglePassword"
-                     class="password-toggle">
-                  </i>
-                </el-input>
-                <!-- 🔐 密码强度指示器 -->
-                <div class="password-strength" v-if="ruleForm.password">
-                  <div class="strength-bar">
-                    <div
-                      class="strength-fill"
-                      :class="passwordStrength.class"
-                      :style="{ width: passwordStrength.width }">
-                    </div>
+                <div class="input-wrapper">
+                  <div class="input-icon">
+                    <i class="el-icon-lock"></i>
                   </div>
-                  <div class="strength-text" :style="{ color: passwordStrength.color }">
-                    {{ passwordStrength.text }}
-                  </div>
+                  <el-input
+                    v-model="ruleForm.password"
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="请输入密码"
+                    autocomplete="new-password"
+                    size="large"
+                    class="login-input">
+                    <i
+                      slot="suffix"
+                      :class="showPassword ? 'el-icon-view' : 'el-icon-view-off'"
+                      @click="togglePassword"
+                      class="password-toggle">
+                    </i>
+                  </el-input>
                 </div>
               </el-form-item>
 
               <!-- 🔒 确认密码输入 -->
               <el-form-item prop="rePassword" class="form-item">
-                <el-input
-                  v-model="ruleForm.rePassword"
-                  :type="showConfirmPassword ? 'text' : 'password'"
-                  placeholder="请再次输入密码"
-                  autocomplete="new-password"
-                  size="large"
-                  class="register-input">
-                  <i slot="prefix" class="el-icon-circle-check"></i>
-                  <template slot="suffix">
-                    <i v-if="passwordMatchStatus"
-                       :class="passwordMatchStatus.icon"
-                       :style="{ color: passwordMatchStatus.color }"
-                       class="input-status-icon">
+                <div class="input-wrapper">
+                  <div class="input-icon">
+                    <i class="el-icon-circle-check"></i>
+                  </div>
+                  <el-input
+                    v-model="ruleForm.rePassword"
+                    :type="showConfirmPassword ? 'text' : 'password'"
+                    placeholder="请再次输入密码"
+                    autocomplete="new-password"
+                    size="large"
+                    class="login-input">
+                    <i
+                      slot="suffix"
+                      :class="showConfirmPassword ? 'el-icon-view' : 'el-icon-view-off'"
+                      @click="toggleConfirmPassword"
+                      class="password-toggle">
                     </i>
-                    <i :class="showConfirmPassword ? 'el-icon-view' : 'el-icon-view-off'"
-                       @click="toggleConfirmPassword"
-                       class="password-toggle">
-                    </i>
-                  </template>
-                </el-input>
+                  </el-input>
+                </div>
               </el-form-item>
 
               <!-- ✅ 用户协议 -->
-              <div class="agreement-section">
-                <el-checkbox v-model="agreeTerms" class="agreement-checkbox">
-                  我已阅读并同意
-                  <el-button type="text" class="terms-link" @click="showTerms">
-                    《用户服务协议》
-                  </el-button>
-                  和
-                  <el-button type="text" class="privacy-link" @click="showPrivacy">
-                    《隐私政策》
-                  </el-button>
+              <div class="form-options">
+                <el-checkbox v-model="agreeTerms" class="remember-checkbox">
+                  我已阅读并同意《用户协议》和《隐私政策》
                 </el-checkbox>
               </div>
 
@@ -135,7 +117,7 @@
                   :loading="registerLoading"
                   :disabled="!agreeTerms"
                   @click="submitForm('ruleForm')"
-                  class="register-button">
+                  class="login-button">
                   <span v-if="!registerLoading">
                     <i class="el-icon-user-solid"></i>
                     立即注册
@@ -145,32 +127,14 @@
               </el-form-item>
 
               <!-- 🔗 登录链接 -->
-              <div class="login-section">
-                <span class="login-text">已有账号？</span>
-                <router-link to="/login" class="login-link">
+              <div class="register-section">
+                <span class="register-text">已有账号？</span>
+                <router-link to="/login" class="register-link">
                   立即登录
                 </router-link>
               </div>
 
             </el-form>
-          </div>
-
-          <!-- 🌐 第三方注册 -->
-          <div class="social-register-section">
-            <div class="divider">
-              <span class="divider-text">或者使用以下方式注册</span>
-            </div>
-            <div class="social-buttons">
-              <el-button class="social-btn wechat-btn" circle>
-                <i class="el-icon-chat-dot-round"></i>
-              </el-button>
-              <el-button class="social-btn qq-btn" circle>
-                <i class="el-icon-user-solid"></i>
-              </el-button>
-              <el-button class="social-btn weibo-btn" circle>
-                <i class="el-icon-star-on"></i>
-              </el-button>
-            </div>
           </div>
 
         </div>
@@ -181,6 +145,7 @@
             <h2 class="info-title">加入我们</h2>
             <p class="info-description">
               注册成为我们的会员，享受更多专属服务：
+              个性化推荐、会员专享折扣、积分奖励、优先客服等。
             </p>
             <div class="info-features">
               <div class="feature-item">
@@ -219,7 +184,7 @@ import {reqRegister, reqAccountVerify} from "../../api/user";
 export default {
   name: "Register",
   components: { Nav, Footer },
-
+  
   data() {
     // 账号验证
     const validateAccount = (rule, value, callback) => {
@@ -231,33 +196,19 @@ export default {
         callback(new Error('账号长度不能少于3位'));
         return;
       }
-
+      
       // 验证账号是否可用
       reqAccountVerify({account: value}).then((response) => {
         if (response.code === 200) {
-          // 200表示账号可以注册，验证通过
-          this.accountStatus = {
-            icon: 'el-icon-circle-check',
-            color: '#67c23a'
-          };
           callback();
         } else {
-          // 非200表示账号已被注册或其他错误
-          this.accountStatus = {
-            icon: 'el-icon-circle-close',
-            color: '#f56c6c'
-          };
           callback(new Error(response.message || '该账号已被注册'));
         }
       }).catch(() => {
-        this.accountStatus = {
-          icon: 'el-icon-warning',
-          color: '#e6a23c'
-        };
         callback(new Error('验证账号时出错，请重试'));
       });
     };
-
+    
     // 密码验证
     const validatePassword = (rule, value, callback) => {
       if (!value) {
@@ -265,42 +216,30 @@ export default {
       } else if (value.length < 6) {
         callback(new Error('密码长度不能少于6位'));
       } else {
-        // 验证确认密码
         if (this.ruleForm.rePassword) {
           this.$refs.ruleForm.validateField('rePassword');
         }
         callback();
       }
     };
-
+    
     // 确认密码验证
     const validateRePassword = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请再次输入密码'));
       } else if (value !== this.ruleForm.password) {
-        this.passwordMatchStatus = {
-          icon: 'el-icon-circle-close',
-          color: '#f56c6c'
-        };
         callback(new Error('两次输入的密码不一致'));
       } else {
-        this.passwordMatchStatus = {
-          icon: 'el-icon-circle-check',
-          color: '#67c23a'
-        };
         callback();
       }
     };
-
+    
     return {
-      // 表单数据
       ruleForm: {
         account: '',
         password: '',
         rePassword: ''
       },
-
-      // 表单验证规则
       rules: {
         account: [
           { validator: validateAccount, trigger: 'blur' }
@@ -312,82 +251,28 @@ export default {
           { validator: validateRePassword, trigger: 'blur' }
         ]
       },
-
-      // UI状态
       showPassword: false,
       showConfirmPassword: false,
       registerLoading: false,
-      agreeTerms: false,
-
-      // 状态指示器
-      accountStatus: null,
-      passwordMatchStatus: null
+      agreeTerms: false
     };
   },
-
-  computed: {
-    // 密码强度计算
-    passwordStrength() {
-      const password = this.ruleForm.password;
-      if (!password) return { width: '0%', class: '', color: '', text: '' };
-
-      let score = 0;
-      let text = '';
-      let color = '';
-      let className = '';
-
-      // 长度检查
-      if (password.length >= 6) score += 1;
-      if (password.length >= 8) score += 1;
-
-      // 复杂度检查
-      if (/[a-z]/.test(password)) score += 1;
-      if (/[A-Z]/.test(password)) score += 1;
-      if (/[0-9]/.test(password)) score += 1;
-      if (/[^A-Za-z0-9]/.test(password)) score += 1;
-
-      if (score <= 2) {
-        text = '弱';
-        color = '#f56c6c';
-        className = 'weak';
-      } else if (score <= 4) {
-        text = '中';
-        color = '#e6a23c';
-        className = 'medium';
-      } else {
-        text = '强';
-        color = '#67c23a';
-        className = 'strong';
-      }
-
-      return {
-        width: `${Math.min(score * 20, 100)}%`,
-        class: className,
-        color: color,
-        text: text
-      };
-    }
-  },
+  
   methods: {
-    // 切换密码显示
     togglePassword() {
       this.showPassword = !this.showPassword;
     },
-
-    // 切换确认密码显示
+    
     toggleConfirmPassword() {
       this.showConfirmPassword = !this.showConfirmPassword;
     },
-
-    // 检查账号可用性
+    
     checkAccountAvailability() {
-      // 这个方法会在账号输入框失焦时触发验证
       if (this.ruleForm.account) {
         this.$refs.ruleForm.validateField('account');
       }
     },
-
-    // 提交注册表单
+    
     submitForm(formName) {
       if (!this.agreeTerms) {
         this.$message({
@@ -396,24 +281,22 @@ export default {
         });
         return;
       }
-
+      
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.registerLoading = true;
-
-          // 调用注册API
+          
           reqRegister(this.ruleForm.account, this.ruleForm.password)
             .then((response) => {
               this.registerLoading = false;
-
+              
               if (response.code === 200) {
                 this.$message({
                   type: 'success',
                   message: response.message || '注册成功！',
                   duration: 2000
                 });
-
-                // 延迟跳转到登录页面
+                
                 setTimeout(() => {
                   this.$router.push({
                     path: '/login',
@@ -443,47 +326,23 @@ export default {
           });
         }
       });
-    },
-
-    // 重置表单
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-      this.accountStatus = null;
-      this.passwordMatchStatus = null;
-      this.agreeTerms = false;
-    },
-
-    // 显示用户协议
-    showTerms() {
-      this.$alert('这里是用户服务协议的内容...', '用户服务协议', {
-        confirmButtonText: '我知道了',
-        type: 'info'
-      });
-    },
-
-    // 显示隐私政策
-    showPrivacy() {
-      this.$alert('这里是隐私政策的内容...', '隐私政策', {
-        confirmButtonText: '我知道了',
-        type: 'info'
-      });
     }
   }
 }
 </script>
 
 <style scoped>
-/* 📝 现代化注册页面样式 */
+/* 🔐 现代化登录页面样式 */
 
-.modern-register-page {
+.modern-login-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
   overflow-x: hidden;
 }
 
-/* 🎨 注册主体区域 */
-.register-main {
+/* 🎨 登录主体区域 */
+.login-main {
   padding: 80px 0;
   min-height: calc(100vh - 160px);
   display: flex;
@@ -491,14 +350,14 @@ export default {
   justify-content: center;
 }
 
-.register-container {
+.login-container {
   max-width: 1200px;
   width: 100%;
   padding: 0 20px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 60px;
   align-items: center;
-  justify-content: center;
   position: relative;
   z-index: 2;
 }
@@ -545,14 +404,6 @@ export default {
   animation-delay: 4s;
 }
 
-.circle-4 {
-  width: 80px;
-  height: 80px;
-  top: 30%;
-  right: 30%;
-  animation-delay: 1s;
-}
-
 @keyframes float {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -564,32 +415,22 @@ export default {
   }
 }
 
-/* 📱 注册卡片 */
-.register-card {
+/* 📱 登录卡片 */
+.login-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 40px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   width: 100%;
   max-width: 450px;
-  animation: slideInRight 0.8s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 10;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* 🎯 注册头部 */
-.register-header {
+/* 🎯 登录头部 */
+.login-header {
   text-align: center;
   margin-bottom: 40px;
 }
@@ -609,8 +450,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-  animation: pulse 2s infinite;
+  margin-bottom: 10px;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
 .logo-icon i {
@@ -618,19 +459,8 @@ export default {
   color: white;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
-  }
-}
-
-.register-title {
-  font-size: 32px;
+.login-title {
+  font-size: 28px;
   font-weight: 700;
   color: #2c3e50;
   margin: 0;
@@ -640,19 +470,19 @@ export default {
   background-clip: text;
 }
 
-.register-subtitle {
+.login-subtitle {
   font-size: 16px;
   color: #7f8c8d;
   margin: 0;
-  line-height: 1.5;
+  font-weight: 400;
 }
 
-/* 📝 注册表单 */
-.register-form-section {
+/* 📝 登录表单 */
+.login-form-section {
   margin-bottom: 30px;
 }
 
-.register-form {
+.login-form {
   width: 100%;
 }
 
@@ -660,250 +490,145 @@ export default {
   margin-bottom: 25px;
 }
 
-.register-input {
-  width: 100%;
+.form-item:last-child {
+  margin-bottom: 0;
 }
 
-.register-input .el-input__inner {
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 5;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  color: #7f8c8d;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.login-input {
+  width: 100%;
+  position: relative;
+  z-index: 5;
+}
+
+.login-input .el-input__inner {
   height: 50px;
+  padding-left: 50px;
+  padding-right: 50px;
   border: 2px solid #e9ecef;
-  border-radius: 12px;
+  border-radius: 25px;
   font-size: 16px;
   transition: all 0.3s ease;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.9);
+  position: relative;
+  z-index: 5;
 }
 
-.register-input .el-input__inner:focus {
+.login-input .el-input__inner:focus {
   border-color: #667eea;
-  background: white;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.register-input .el-input__prefix {
-  left: 15px;
-  color: #bdc3c7;
-  font-size: 18px;
-  transition: color 0.3s ease;
-}
-
-.register-input .el-input__suffix {
-  right: 15px;
-  color: #bdc3c7;
-  font-size: 18px;
-}
-
-.register-input:focus-within .el-input__prefix {
-  color: #667eea;
+  background: white;
 }
 
 .password-toggle {
+  position: absolute;
+  right: 15px;
+  z-index: 3;
+  color: #7f8c8d;
   cursor: pointer;
-  color: #bdc3c7;
   font-size: 18px;
   transition: color 0.3s ease;
-  margin-left: 8px;
 }
 
 .password-toggle:hover {
   color: #667eea;
 }
 
-.input-status-icon {
-  color: inherit;
-  margin-right: 8px;
-}
-
-/* 🔐 密码强度指示器 */
-.password-strength {
-  margin-top: 8px;
-}
-
-.strength-bar {
-  height: 4px;
-  background: #e9ecef;
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 5px;
-}
-
-.strength-fill {
-  height: 100%;
-  transition: all 0.3s ease;
-  border-radius: 2px;
-}
-
-.strength-fill.weak {
-  background: #f56c6c;
-}
-
-.strength-fill.medium {
-  background: #e6a23c;
-}
-
-.strength-fill.strong {
-  background: #67c23a;
-}
-
-.strength-text {
-  font-size: 12px;
-  text-align: right;
-  font-weight: 500;
-}
-
-/* ✅ 用户协议 */
-.agreement-section {
+/* 🔄 表单选项 */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 25px 0;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
-}
-
-.agreement-checkbox {
   font-size: 14px;
-  line-height: 1.6;
 }
 
-.terms-link,
-.privacy-link {
+.remember-checkbox {
+  color: #7f8c8d;
+}
+
+.forgot-password {
   color: #667eea;
-  font-weight: 500;
-  padding: 0 4px;
+  font-size: 14px;
+  padding: 0;
   text-decoration: none;
 }
 
-.terms-link:hover,
-.privacy-link:hover {
+.forgot-password:hover {
   color: #764ba2;
   text-decoration: underline;
 }
 
-/* 🚀 注册按钮 */
-.register-button {
+/* 🚀 登录按钮 */
+.login-button {
   width: 100%;
   height: 50px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 25px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-.register-button:hover {
+.login-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
 }
 
-.register-button:active {
+.login-button:active {
   transform: translateY(0);
 }
 
-.register-button:disabled {
+.login-button:disabled {
   background: #bdc3c7;
   transform: none;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-/* 🔗 登录链接 */
-.login-section {
+/* 🔗 注册链接 */
+.register-section {
   text-align: center;
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #e9ecef;
 }
 
-.login-text {
+.register-text {
   color: #7f8c8d;
   font-size: 14px;
   margin-right: 8px;
 }
 
-.login-link {
+.register-link {
   color: #667eea;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-.login-link:hover {
+.register-link:hover {
   color: #764ba2;
   text-decoration: underline;
-}
-
-/* 🌐 第三方注册 */
-.social-register-section {
-  margin-top: 30px;
-}
-
-.divider {
-  position: relative;
-  text-align: center;
-  margin: 25px 0;
-}
-
-.divider::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #e9ecef;
-}
-
-.divider-text {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 0 20px;
-  color: #7f8c8d;
-  font-size: 14px;
-  position: relative;
-  z-index: 1;
-}
-
-.social-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.social-btn {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 2px solid #e9ecef;
-  background: white;
-  color: #7f8c8d;
-  font-size: 20px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.social-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.wechat-btn:hover {
-  background: #1aad19;
-  border-color: #1aad19;
-  color: white;
-}
-
-.qq-btn:hover {
-  background: #12b7f5;
-  border-color: #12b7f5;
-  color: white;
-}
-
-.weibo-btn:hover {
-  background: #e6162d;
-  border-color: #e6162d;
-  color: white;
 }
 
 /* 📚 侧边信息 */
@@ -911,19 +636,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 1;
-  animation: slideInLeft 0.8s ease-out;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 .info-content {
@@ -976,18 +688,18 @@ export default {
 
 /* 📱 响应式设计 */
 @media (max-width: 1200px) {
-  .register-container {
+  .login-container {
     gap: 40px;
   }
 
-  .register-card {
+  .login-card {
     padding: 30px;
   }
 }
 
 @media (max-width: 992px) {
-  .register-container {
-    flex-direction: column;
+  .login-container {
+    grid-template-columns: 1fr;
     gap: 40px;
     max-width: 500px;
   }
@@ -1011,15 +723,15 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .register-main {
+  .login-main {
     padding: 40px 0;
   }
 
-  .register-container {
+  .login-container {
     padding: 0 15px;
   }
 
-  .register-card {
+  .login-card {
     padding: 25px 20px;
     border-radius: 16px;
   }
@@ -1033,20 +745,20 @@ export default {
     font-size: 28px;
   }
 
-  .register-title {
+  .login-title {
     font-size: 24px;
   }
 
-  .register-subtitle {
+  .login-subtitle {
     font-size: 14px;
   }
 
-  .register-input .el-input__inner {
+  .login-input .el-input__inner {
     height: 45px;
     font-size: 14px;
   }
 
-  .register-button {
+  .login-button {
     height: 45px;
     font-size: 14px;
   }
@@ -1070,23 +782,23 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .register-main {
+  .login-main {
     padding: 20px 0;
   }
 
-  .register-container {
+  .login-container {
     padding: 0 10px;
   }
 
-  .register-card {
+  .login-card {
     padding: 20px 15px;
   }
 
-  .register-title {
+  .login-title {
     font-size: 20px;
   }
 
-  .register-input .el-input__inner {
+  .login-input .el-input__inner {
     height: 40px;
     padding-left: 40px;
     padding-right: 40px;
@@ -1097,41 +809,13 @@ export default {
     font-size: 16px;
   }
 
-  .input-status {
+  .password-toggle {
     right: 12px;
     font-size: 16px;
   }
 
-  .register-button {
+  .login-button {
     height: 40px;
-  }
-
-  .social-btn {
-    width: 45px;
-    height: 45px;
-    font-size: 18px;
-  }
-}
-
-/* 🎬 动画效果 */
-.register-form .form-item {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.register-form .form-item:nth-child(1) { animation-delay: 0.1s; }
-.register-form .form-item:nth-child(2) { animation-delay: 0.2s; }
-.register-form .form-item:nth-child(3) { animation-delay: 0.3s; }
-.register-form .form-item:nth-child(4) { animation-delay: 0.4s; }
-.register-form .form-item:nth-child(5) { animation-delay: 0.5s; }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -1150,64 +834,4 @@ export default {
 .el-checkbox__input.is-checked + .el-checkbox__label {
   color: #667eea;
 }
-
-.el-loading-mask {
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(5px);
-}
-
-/* 🌙 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-  .register-card {
-    background: rgba(45, 45, 45, 0.95);
-    color: #e6e6e6;
-  }
-
-  .register-title {
-    color: #e6e6e6;
-  }
-
-  .register-subtitle {
-    color: #bdc3c7;
-  }
-
-  .register-input .el-input__inner {
-    background: #404040;
-    border-color: #555;
-    color: #e6e6e6;
-  }
-
-  .register-input .el-input__inner:focus {
-    background: #4a4a4a;
-    border-color: #667eea;
-  }
-
-  .agreement-section {
-    background: #404040;
-  }
-
-  .login-section {
-    border-top-color: #555;
-  }
-
-  .login-text {
-    color: #bdc3c7;
-  }
-
-  .divider::before {
-    background: #555;
-  }
-
-  .divider-text {
-    background: rgba(45, 45, 45, 0.95);
-    color: #bdc3c7;
-  }
-
-  .social-btn {
-    background: #404040;
-    border-color: #555;
-    color: #bdc3c7;
-  }
-}
 </style>
-

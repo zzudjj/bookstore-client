@@ -40,28 +40,44 @@
 
               <!-- 👤 账号输入 -->
               <el-form-item prop="account" class="form-item">
-                <el-input
-                  v-model="ruleForm.account"
-                  type="text"
-                  placeholder="请输入手机号或邮箱"
-                  autocomplete="username"
-                  size="large"
-                  class="login-input"
-                  @keyup.enter.native="login('ruleForm')">
-                </el-input>
+                <div class="input-wrapper">
+                  <div class="input-icon">
+                    <i class="el-icon-user"></i>
+                  </div>
+                  <el-input
+                    v-model="ruleForm.account"
+                    type="text"
+                    placeholder="请输入手机号或邮箱"
+                    autocomplete="username"
+                    size="large"
+                    class="login-input"
+                    @keyup.enter.native="login('ruleForm')">
+                  </el-input>
+                </div>
               </el-form-item>
 
               <!-- 🔒 密码输入 -->
               <el-form-item prop="password" class="form-item">
-                <el-input
-                  v-model="ruleForm.password"
-                  type="password"
-                  placeholder="请输入密码"
-                  autocomplete="current-password"
-                  size="large"
-                  class="login-input"
-                  @keyup.enter.native="login('ruleForm')">
-                </el-input>
+                <div class="input-wrapper">
+                  <div class="input-icon">
+                    <i class="el-icon-lock"></i>
+                  </div>
+                  <el-input
+                    v-model="ruleForm.password"
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="请输入密码"
+                    autocomplete="current-password"
+                    size="large"
+                    class="login-input"
+                    @keyup.enter.native="login('ruleForm')">
+                    <i
+                      slot="suffix"
+                      :class="showPassword ? 'el-icon-view' : 'el-icon-view-off'"
+                      @click="togglePassword"
+                      class="password-toggle">
+                    </i>
+                  </el-input>
+                </div>
               </el-form-item>
 
               <!-- 🔄 记住我和忘记密码 -->
@@ -480,8 +496,8 @@ export default {
 
 .login-input .el-input__inner {
   height: 50px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 50px;
+  padding-right: 50px;
   border: 2px solid #e9ecef;
   border-radius: 25px;
   font-size: 16px;
@@ -496,8 +512,11 @@ export default {
 }
 
 .password-toggle {
-  cursor: pointer;
+  position: absolute;
+  right: 15px;
+  z-index: 3;
   color: #7f8c8d;
+  cursor: pointer;
   font-size: 18px;
   transition: color 0.3s ease;
 }
