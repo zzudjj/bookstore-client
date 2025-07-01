@@ -36,7 +36,7 @@
             </div>
             <div class="header-right">
               <div class="countdown-section">
-                <div class="countdown-label">距离下场结束</div>
+                <div class="countdown-label">{{ countdownLabel }}</div>
                 <div class="countdown-timer">
                   <div class="time-block">
                     <span class="time-value">{{ countdown.hours }}</span>
@@ -148,7 +148,7 @@
               <!-- 📷 商品图片 -->
               <div class="product-image">
                 <el-image
-                  :src="book.coverImg || imgS"
+                  :src="getBookCoverUrl(book.coverImg) || imgS"
                   fit="cover"
                   class="book-cover"
                   :alt="book.name">
@@ -190,7 +190,7 @@
                   </div>
                   <div class="original-price">¥{{ book.price }}</div>
                   <div class="discount-badge">
-                    {{ Math.round((1 - book.spikePrice / book.price) * 100) }}折
+                    {{ Math.round((book.spikePrice / book.price) * 10) }}折
                   </div>
                 </div>
                 
@@ -234,6 +234,7 @@
 <script>
 import Nav from "../../components/Common/BaseNavigation";
 import Footer from "../../components/Common/BaseFooter";
+import {getBookCoverUrl} from "../../utils/imageUtils";
 
 export default {
   name: "Spike",
@@ -245,70 +246,17 @@ export default {
       imgS: require('../../assets/image/bookdefault.jpg'),
       viewMode: 'grid', // 'grid' 或 'list'
       countdownTimer: null,
+      countdownLabel: '距离下场结束',
       countdown: {
-        hours: '02',
-        minutes: '30',
-        seconds: '45'
+        hours: '--',
+        minutes: '--',
+        seconds: '--'
       },
-      
-      spikeList: [
-        {
-          spikeName: "上午场",
-          startTime: "10:00",
-          status: "ended",
-          progress: 100,
-          bookList: [
-            {
-              id: 1,
-              name: "三体全集（典藏版）",
-              author: "刘慈欣 著",
-              price: 168.00,
-              spikePrice: 89.00,
-              stock: 0,
-              totalStock: 100,
-              coverImg: ""
-            },
-            {
-              id: 2,
-              name: "活着",
-              author: "余华 著",
-              price: 45.00,
-              spikePrice: 25.00,
-              stock: 0,
-              totalStock: 200,
-              coverImg: ""
-            }
-          ]
-        },
-        {
-          spikeName: "下午场",
-          startTime: "14:00",
-          status: "ongoing",
-          progress: 65,
-          bookList: [
-            {
-              id: 3,
-              name: "百年孤独",
-              author: "加西亚·马尔克斯 著",
-              price: 58.00,
-              spikePrice: 32.00,
-              stock: 35,
-              totalStock: 100,
-              coverImg: ""
-            },
-            {
-              id: 4,
-              name: "人类简史",
-              author: "尤瓦尔·赫拉利 著",
-              price: 78.00,
-              spikePrice: 45.00,
-              stock: 28,
-              totalStock: 80,
-              coverImg: ""
-            }
-          ]
-        }
-      ]
+      targetTime: null, // 目标时间
+
+      spikeList: [], // 改为空数组，从API获取数据
+      loading: false,
+      error: null
     };
   },
 
@@ -323,13 +271,122 @@ export default {
   },
 
   methods: {
+    // 加载秒杀活动列表
+    async loadSpikeList() {
+      try {
+        this.loading = true;
+        this.error = null;
+
+        const response = await this.$http.get('/api/spike/list');
+
+        if (response.data.code === 200) {
+          // 处理后端返回的数据，转换为前端需要的格式
+          this.spikeList = this.formatSpikeData(response.data.data);
+          // 重新计算倒计时
+          this.calculateNextTarget();
+        } else {
+          this.error = response.data.message || '获取秒杀活动失败';
+          this.$message.error(this.error);
+        }
+      } catch (error) {
+        console.error('加载秒杀活动失败:', error);
+        this.error = '网络错误，请稍后重试';
+        this.$message.error(this.error);
+
+        // 如果API调用失败，使用备用数据
+        this.loadFallbackData();
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 格式化后端数据为前端需要的格式
+    formatSpikeData(activities) {
+      return activities.map(activity => {
+        // 计算进度
+        let progress = 0;
+        if (activity.spikeGoodsList && activity.spikeGoodsList.length > 0) {
+          const totalStock = activity.spikeGoodsList.reduce((sum, goods) => sum + goods.spikeStock, 0);
+          const soldCount = activity.spikeGoodsList.reduce((sum, goods) => sum + (goods.soldCount || 0), 0);
+          progress = totalStock > 0 ? Math.round((soldCount / totalStock) * 100) : 0;
+        }
+
+        // 动态计算活动状态（基于时间而不是数据库status字段）
+        const now = new Date();
+        const startTime = new Date(activity.startTime);
+        const endTime = new Date(activity.endTime);
+        let dynamicStatus;
+        if (now < startTime) {
+          dynamicStatus = 'upcoming'; // 未开始
+        } else if (now >= startTime && now < endTime) {
+          dynamicStatus = 'ongoing';  // 进行中
+        } else {
+          dynamicStatus = 'ended';    // 已结束
+        }
+
+        return {
+          id: activity.id,
+          spikeName: activity.activityName,
+          startTime: activity.startTimeStr || this.formatTime(activity.startTime),
+          endTime: activity.endTimeStr || this.formatTime(activity.endTime),
+          startTimeRaw: activity.startTime, // 保存原始时间用于倒计时计算
+          endTimeRaw: activity.endTime,     // 保存原始时间用于倒计时计算
+          status: dynamicStatus,            // 使用动态计算的状态
+          dbStatus: activity.status,        // 保存数据库中的启用/禁用状态
+          progress: progress,
+          bookList: (activity.spikeGoodsList || []).map(goods => ({
+            id: goods.bookId, // 使用bookId作为前端的id
+            spikeGoodsId: goods.id, // 保存秒杀商品ID用于API调用
+            name: goods.name || (goods.book && goods.book.bookName) || '未知商品',
+            author: goods.author || (goods.book && goods.book.author) || '未知作者',
+            price: goods.originalPrice,
+            spikePrice: goods.spikePrice,
+            stock: goods.spikeStock || 0, // 当前剩余库存（后端已修复，直接使用spikeStock）
+            totalStock: (goods.spikeStock || 0) + (goods.soldCount || 0), // 初始总库存 = 当前库存 + 已售数量
+            coverImg: goods.coverImg || (goods.book && goods.book.coverImg) || this.imgS
+          }))
+        };
+      });
+    },
+
+    // 状态映射
+    mapStatus(status) {
+      const statusMap = {
+        0: 'upcoming',  // 未开始
+        1: 'ongoing',   // 进行中
+        2: 'ended',     // 已结束
+        3: 'cancelled'  // 已取消
+      };
+      return statusMap[status] || 'unknown';
+    },
+
+    // 格式化时间
+    formatTime(timeStr) {
+      if (!timeStr) return '';
+      const date = new Date(timeStr);
+      return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    },
+
+    // 备用数据（API失败时使用）
+    loadFallbackData() {
+      this.spikeList = [
+        {
+          spikeName: "系统维护中",
+          startTime: "00:00",
+          status: "ended",
+          progress: 0,
+          bookList: []
+        }
+      ];
+    },
+
     // 选择时段
     selectTimeSlot(index) {
       this.activeName = index;
     },
 
     // 秒杀商品
-    spikeBook(book) {
+    async spikeBook(book) {
       if (book.stock <= 0) {
         this.$message({
           type: 'warning',
@@ -338,77 +395,160 @@ export default {
         return;
       }
 
-      this.$confirm(`确定要秒杀《${book.name}》吗？`, '秒杀确认', {
-        confirmButtonText: '立即秒杀',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // 模拟秒杀请求
-        this.$message({
-          type: 'success',
-          message: '秒杀成功！正在跳转到支付页面...'
+      try {
+        await this.$confirm(`确定要秒杀《${book.name}》吗？`, '秒杀确认', {
+          confirmButtonText: '立即秒杀',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
 
-        // 减少库存
-        book.stock = Math.max(0, book.stock - 1);
+        // 调用真实的秒杀API
+        const response = await this.$http.post('/api/spike/spikeBook', {
+          id: book.id,
+          quantity: 1
+        });
 
-        // 更新进度
-        const spike = this.spikeList[this.activeName];
-        spike.progress = Math.round(((spike.bookList.reduce((total, item) => total + (item.totalStock - item.stock), 0)) / spike.bookList.reduce((total, item) => total + item.totalStock, 0)) * 100);
-
-        // 模拟跳转到支付页面
-        setTimeout(() => {
-          this.$router.push({
-            path: '/buyPage',
-            query: {
-              spikeId: book.id,
-              type: 'spike'
-            }
+        if (response.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '秒杀成功！正在跳转到支付页面...'
           });
-        }, 1500);
 
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消秒杀'
-        });
-      });
+          // 刷新数据
+          await this.loadSpikeList();
+
+          // 跳转到支付页面
+          setTimeout(() => {
+            this.$router.push({
+              path: '/buyPage',
+              query: {
+                orderId: response.data.data.orderId,
+                type: 'spike'
+              }
+            });
+          }, 1500);
+
+        } else {
+          this.$message({
+            type: 'error',
+            message: response.data.message || '秒杀失败'
+          });
+        }
+
+      } catch (error) {
+        if (error === 'cancel') {
+          this.$message({
+            type: 'info',
+            message: '已取消秒杀'
+          });
+        } else {
+          console.error('秒杀请求失败:', error);
+          this.$message({
+            type: 'error',
+            message: '网络错误，请稍后重试'
+          });
+        }
+      }
+    },
+
+    // 更新倒计时显示
+    updateCountdownDisplay() {
+      if (!this.targetTime) {
+        // 没有目标时间，显示横杠
+        this.countdown.hours = '--';
+        this.countdown.minutes = '--';
+        this.countdown.seconds = '--';
+        return;
+      }
+
+      const now = new Date();
+      const diff = this.targetTime - now;
+
+      if (diff <= 0) {
+        // 时间到了，重新计算下一个目标时间
+        this.calculateNextTarget();
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      this.countdown.hours = hours.toString().padStart(2, '0');
+      this.countdown.minutes = minutes.toString().padStart(2, '0');
+      this.countdown.seconds = seconds.toString().padStart(2, '0');
+    },
+
+    // 计算下一个目标时间
+    calculateNextTarget() {
+      if (!this.spikeList || this.spikeList.length === 0) {
+        this.targetTime = null;
+        this.countdownLabel = '暂无活动';
+        return;
+      }
+
+      const now = new Date();
+      let ongoingActivity = null;
+      let upcomingActivity = null;
+
+      // 查找正在进行的活动和即将开始的活动
+      for (const activity of this.spikeList) {
+        const startTime = new Date(activity.startTimeRaw || activity.startTime);
+        const endTime = new Date(activity.endTimeRaw || activity.endTime);
+
+        if (now >= startTime && now < endTime) {
+          // 正在进行的活动
+          ongoingActivity = activity;
+          break;
+        } else if (now < startTime) {
+          // 即将开始的活动
+          if (!upcomingActivity || startTime < new Date(upcomingActivity.startTimeRaw || upcomingActivity.startTime)) {
+            upcomingActivity = activity;
+          }
+        }
+      }
+
+      if (ongoingActivity) {
+        // 有正在进行的活动，倒计时到结束时间
+        this.targetTime = new Date(ongoingActivity.endTimeRaw || ongoingActivity.endTime);
+        this.countdownLabel = '距离本场结束';
+      } else if (upcomingActivity) {
+        // 没有正在进行的活动，但有即将开始的活动
+        this.targetTime = new Date(upcomingActivity.startTimeRaw || upcomingActivity.startTime);
+        this.countdownLabel = '距离下场开始';
+      } else {
+        // 没有任何活动
+        this.targetTime = null;
+        this.countdownLabel = '暂无活动';
+      }
     },
 
     // 启动倒计时
     startCountdown() {
+      // 先计算目标时间
+      this.calculateNextTarget();
+
+      // 启动定时器
       this.countdownTimer = setInterval(() => {
-        let totalSeconds = parseInt(this.countdown.hours) * 3600 +
-                          parseInt(this.countdown.minutes) * 60 +
-                          parseInt(this.countdown.seconds);
-
-        if (totalSeconds > 0) {
-          totalSeconds--;
-
-          const hours = Math.floor(totalSeconds / 3600);
-          const minutes = Math.floor((totalSeconds % 3600) / 60);
-          const seconds = totalSeconds % 60;
-
-          this.countdown.hours = hours.toString().padStart(2, '0');
-          this.countdown.minutes = minutes.toString().padStart(2, '0');
-          this.countdown.seconds = seconds.toString().padStart(2, '0');
-        } else {
-          // 倒计时结束，重置为下一场
-          this.countdown.hours = '02';
-          this.countdown.minutes = '00';
-          this.countdown.seconds = '00';
-        }
+        this.updateCountdownDisplay();
       }, 1000);
     },
 
     // 标签页点击（兼容旧版本）
     handleClick() {
       // 处理标签页切换
+    },
+
+    // 获取图书封面完整URL
+    getBookCoverUrl(coverImg) {
+      return getBookCoverUrl(coverImg);
     }
   },
 
-  mounted() {
+  async mounted() {
     this.startCountdown();
+    // 加载秒杀活动数据
+    await this.loadSpikeList();
   },
 
   beforeDestroy() {

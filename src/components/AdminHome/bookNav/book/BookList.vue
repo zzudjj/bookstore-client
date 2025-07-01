@@ -73,81 +73,120 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        :row-style="getRowStyle"
         @selection-change="handleSelectionChange">
         <el-table-column
           type="selection"
-          width="55"
-          align="center"
-        >
+          width="50"
+          align="center">
         </el-table-column>
         <el-table-column
           label="编号"
-          width="70"
-          align="center">
-          <template slot-scope="scope">{{ scope.row.id }}</template>
-        </el-table-column>
-        <el-table-column
-          label="图书图片"
-          width="110"
+          width="60"
           align="center">
           <template slot-scope="scope">
-            <el-image style="height: 120px"
-                      :src="scope.row.coverImg">
-              <div slot="error" class="image-slot">
-                <i class="el-icon-picture-outline"></i>
-              </div>
-            </el-image>
+            <el-tag size="mini" type="info">{{ scope.row.id }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column
-          prop="bookName"
-          label="书名"
-          align="center">
+          label="图书信息"
+          min-width="300"
+          align="left">
+          <template slot-scope="scope">
+            <div class="book-info">
+              <el-image
+                class="book-cover"
+                :src="getBookCoverUrl(scope.row.coverImg)"
+                fit="cover">
+                <div slot="error" class="image-slot">
+                  <i class="el-icon-picture-outline"></i>
+                </div>
+              </el-image>
+              <div class="book-details">
+                <div class="book-title">{{ scope.row.bookName }}</div>
+                <div class="book-meta">
+                  <span class="author">作者：{{ scope.row.author }}</span>
+                  <span class="isbn">ISBN：{{ scope.row.isbn }}</span>
+                </div>
+              </div>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
-          prop="isbn"
-          label="isbn"
+          label="价格信息"
+          width="120"
+          align="center">
+          <template slot-scope="scope">
+            <div class="price-info">
+              <div class="market-price">原价：<span class="price-value">¥{{ scope.row.marketPrice }}</span></div>
+              <div class="sale-price">售价：<span class="price-value sale">¥{{ scope.row.price }}</span></div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="库存/销量"
           width="100"
           align="center">
-        </el-table-column>
-        <el-table-column
-          prop="author"
-          label="作者"
-          align="center">
-        </el-table-column>
-        <el-table-column
-          label="原价/售价"
-          width="120" align="center">
           <template slot-scope="scope">
-            原价：{{ scope.row.marketPrice }}元<br>
-            售价：{{ scope.row.price }}元
+            <div class="stock-sales">
+              <div class="stock-info">
+                <span class="label">库存：</span>
+                <span :class="['value', scope.row.stock <= 10 ? 'low-stock' : '']">
+                  {{ scope.row.stock }}
+                </span>
+              </div>
+              <div class="sales-info">
+                <span class="label">销量：</span>
+                <span class="value">{{ scope.row.sales || 0 }}</span>
+              </div>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
-          label="标签"
-          width="120" align="center">
+          label="状态标签"
+          width="140"
+          align="center">
           <template slot-scope="scope">
-            <span style="margin-right: 10px">上架</span>
-            <el-switch v-model="scope.row.put" @change="handlePut($event,scope.row,scope.$index)"></el-switch>
-            <span style="margin-right: 10px">新品</span>
-            <el-switch v-model="scope.row.newProduct" @change="handleNew($event,scope.row,scope.$index)"></el-switch>
-            <span style="margin-right: 10px" >推荐</span>
-            <el-switch v-model="scope.row.recommend" @change="handleRec($event,scope.row,scope.$index)"></el-switch>
+            <div class="status-tags">
+              <div class="tag-row">
+                <span class="tag-label">上架</span>
+                <el-switch
+                  v-model="scope.row.put"
+                  size="mini"
+                  @change="handlePut($event,scope.row,scope.$index)">
+                </el-switch>
+              </div>
+              <div class="tag-row">
+                <span class="tag-label">新品</span>
+                <el-switch
+                  v-model="scope.row.newProduct"
+                  size="mini"
+                  @change="handleNew($event,scope.row,scope.$index)">
+                </el-switch>
+              </div>
+              <div class="tag-row">
+                <span class="tag-label">推荐</span>
+                <el-switch
+                  v-model="scope.row.recommend"
+                  size="mini"
+                  @change="handleRec($event,scope.row,scope.$index)">
+                </el-switch>
+              </div>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
           prop="rank"
           label="排序"
-          width="70" align="center">
-        </el-table-column>
-        <el-table-column
-          prop="sales"
-          label="销量"
-          width="80" align="center">
+          width="70"
+          align="center">
+          <template slot-scope="scope">
+            <el-tag size="mini" type="warning">{{ scope.row.rank }}</el-tag>
+          </template>
         </el-table-column>
         <el-table-column
           label="操作"
-          width="160"
+          width="140"
           align="center">
           <template slot-scope="scope">
             <p>
@@ -206,6 +245,7 @@
     import {reqGetPublishNames} from "../../../../api/publish";
     import {reqGetSortList} from "../../../../api/sort";
     import {reqGetBookList,reqDelBook,reqModifyPut,reqModifyRec,reqModifyNew} from "../../../../api/book";
+    import {getBookCoverUrl} from "../../../../utils/imageUtils";
     import axios from 'axios';
     import qs from 'qs';
     export default {
@@ -423,6 +463,18 @@
                 })
             },
 
+            // 表格行样式
+            getRowStyle({row, rowIndex}) {
+                return {
+                    height: '80px'
+                };
+            },
+
+            // 获取图书封面完整URL
+            getBookCoverUrl(coverImg) {
+                return getBookCoverUrl(coverImg);
+            },
+
 
             //操作表格
             updateBook(index,row){
@@ -572,6 +624,135 @@
   margin-top: 20px;
 }
 
+/* 图书信息样式 */
+.book-info {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.book-cover {
+  width: 60px;
+  height: 80px;
+  margin-right: 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.book-details {
+  flex: 1;
+}
+
+.book-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.book-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.book-meta span {
+  font-size: 12px;
+  color: #909399;
+}
+
+.author {
+  color: #606266;
+}
+
+.isbn {
+  color: #909399;
+}
+
+/* 价格信息样式 */
+.price-info {
+  text-align: center;
+}
+
+.market-price, .sale-price {
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.market-price {
+  color: #909399;
+  text-decoration: line-through;
+}
+
+.sale-price {
+  color: #E6A23C;
+  font-weight: 600;
+}
+
+.price-value {
+  font-weight: 600;
+}
+
+.price-value.sale {
+  color: #E6A23C;
+  font-size: 14px;
+}
+
+/* 库存销量样式 */
+.stock-sales {
+  text-align: center;
+}
+
+.stock-info, .sales-info {
+  margin: 6px 0;
+  font-size: 12px;
+}
+
+.stock-info .label, .sales-info .label {
+  color: #909399;
+}
+
+.stock-info .value, .sales-info .value {
+  font-weight: 600;
+  color: #303133;
+}
+
+.stock-info .value.low-stock {
+  color: #F56C6C;
+  font-weight: 700;
+}
+
+/* 状态标签样式 */
+.status-tags {
+  padding: 5px 0;
+}
+
+.tag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0;
+  padding: 0 5px;
+}
+
+.tag-label {
+  font-size: 12px;
+  color: #606266;
+  min-width: 30px;
+}
+
+/* 图片错误占位符 */
+.image-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: #f5f7fa;
+  color: #909399;
+  font-size: 20px;
+}
 
 /deep/ .el-input__inner {
   padding-right: 0px;
