@@ -6,14 +6,16 @@ export default function ajax (url, data={}, method='GET') {
     let promise
 
     if (method === 'GET') {
-      // 准备url query参数数据
-      let dataStr = ''
+      // 准备url query参数数据，使用URLSearchParams进行正确的编码
+      const params = new URLSearchParams()
       Object.keys(data).forEach(key => {
-        dataStr += key + '=' + data[key] + '&'
+        if (data[key] !== undefined && data[key] !== null) {
+          params.append(key, data[key])
+        }
       })
-      if (dataStr !== '') {
-        dataStr = dataStr.substring(0, dataStr.lastIndexOf('&'))
-        url = url + '?' + dataStr
+
+      if (params.toString()) {
+        url = url + '?' + params.toString()
       }
 
       promise = axios.get(url)
