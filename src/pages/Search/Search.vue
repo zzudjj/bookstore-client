@@ -350,18 +350,15 @@
                   :key="book.id"
                   class="book-card-modern">
 
-                  <!-- 图书封面 -->
+                  <!-- 📷 图书封面 -->
                   <div class="book-cover-wrapper">
-                    <img :src="getBookCover(book.img)" :alt="book.name" class="book-cover" @error="onImageError">
-                  <div v-if="!book.img" class="no-cover-placeholder">
-                    <el-image
-                      :src="book.coverImg"
-                      fit="cover"
-                      class="book-cover-image"
-                      :alt="book.bookName">
-                    <div slot="error" class="image-error">
-                      <i class="el-icon-picture-outline"></i>
-                      <span>暂无封面</span>
+                    <router-link :to="{path: '/book', query: {id: book.id}}" class="cover-link">
+                      <div class="cover-container">
+                        <el-image
+                          :src="book.coverImg"
+                          fit="cover"
+                          class="book-cover-image"
+                          :alt="book.bookName">
                           <div slot="error" class="image-error">
                             <i class="el-icon-picture-outline"></i>
                             <span>暂无封面</span>
