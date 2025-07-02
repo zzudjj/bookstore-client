@@ -143,16 +143,53 @@
               <span>图书分类</span>
             </div>
             <div class="category-list">
-              <router-link
+              <div
                 v-for="sort in sortList"
                 :key="sort.upperSort.id"
-                :to="{path: '/search', query: {id: sort.upperSort.id, name: sort.upperSort.sortName}}"
                 class="category-item"
-                :class="{ 'active': sortId == sort.upperSort.id }">
-                <i class="el-icon-folder"></i>
-                <span>{{ sort.upperSort.sortName }}</span>
-                <i class="el-icon-arrow-right"></i>
-              </router-link>
+                :class="{ 'active': sortId == sort.upperSort.id }"
+                @mouseenter="showSubMenu(sort.upperSort.id)"
+                @mouseleave="hideSubMenu">
+
+                <!-- 一级分类 -->
+                <div class="category-main">
+                  <router-link
+                    :to="{path: '/search', query: {id: sort.upperSort.id, name: sort.upperSort.sortName}}"
+                    class="category-link">
+                    <i class="el-icon-folder"></i>
+                    <span>{{ sort.upperSort.sortName }}</span>
+                  </router-link>
+                  <i class="el-icon-arrow-right category-arrow" v-if="sort.children && sort.children.length > 0"></i>
+                </div>
+
+                <!-- 二级分类悬浮面板 -->
+                <transition name="submenu-fade">
+                  <div
+                    v-show="currentSubMenu === sort.upperSort.id && sort.children && sort.children.length > 0"
+                    class="submenu-panel"
+                    @mouseenter="keepSubMenuOpen"
+                    @mouseleave="hideSubMenu">
+                    <div class="submenu-section">
+                      <h4 class="submenu-title">
+                        <router-link
+                          :to="{path: '/search', query: {id: sort.upperSort.id, name: sort.upperSort.sortName}}">
+                          {{ sort.upperSort.sortName }}
+                        </router-link>
+                      </h4>
+                      <div class="submenu-links">
+                        <router-link
+                          v-for="child in sort.children"
+                          :key="child.id"
+                          :to="{path: '/search', query: {id: child.id, name: child.sortName}}"
+                          class="submenu-link"
+                          :class="{ 'active': sortId == child.id }">
+                          {{ child.sortName }}
+                        </router-link>
+                      </div>
+                    </div>
+                  </div>
+                </transition>
+              </div>
             </div>
           </aside>
 
@@ -297,7 +334,7 @@
                     <router-link :to="{path: '/book', query: {id: book.id}}" class="cover-link">
                       <div class="cover-container">
                         <el-image
-                          :src="book.coverImg"
+                          :src="book.coverImg ? '/api/' + book.coverImg : ''"
                           fit="cover"
                           class="book-cover-image"
                           :alt="book.bookName">
@@ -426,7 +463,7 @@
                       <router-link :to="{path: '/book', query: {id: book.id}}" class="grid-cover-link">
                         <div class="grid-cover-container">
                           <el-image
-                            :src="book.coverImg"
+                            :src="book.coverImg ? '/api/' + book.coverImg : ''"
                             fit="cover"
                             class="grid-cover-image"
                             :alt="book.bookName">
@@ -598,11 +635,42 @@ export default {
       // 数据
       sortList: [],
       bookList: [],
-      originalBookList: [] // 原始数据，用于排序
+      originalBookList: [], // 原始数据，用于排序
+
+      // 分类菜单相关
+      currentSubMenu: null,
+      hideMenuTimer: null
     };
   },
 
   methods: {
+    // 显示子菜单
+    showSubMenu(sortId) {
+      // 清除之前的隐藏定时器
+      if (this.hideMenuTimer) {
+        clearTimeout(this.hideMenuTimer);
+        this.hideMenuTimer = null;
+      }
+      this.currentSubMenu = sortId;
+    },
+
+    // 保持子菜单显示
+    keepSubMenuOpen() {
+      // 清除隐藏定时器
+      if (this.hideMenuTimer) {
+        clearTimeout(this.hideMenuTimer);
+        this.hideMenuTimer = null;
+      }
+    },
+
+    // 隐藏子菜单
+    hideSubMenu() {
+      // 设置延迟隐藏，给用户时间移动到子菜单
+      this.hideMenuTimer = setTimeout(() => {
+        this.currentSubMenu = null;
+      }, 300);
+    },
+
     // 显示搜索历史建议
     showHistorySuggestions() {
       if (this.searchKeyword.trim() === '' && this.searchHistory.length > 0) {
@@ -1252,6 +1320,14 @@ export default {
 
     // 根据URL参数初始化
     this.initFromRoute();
+  },
+
+  beforeDestroy() {
+    // 清理定时器
+    if (this.hideMenuTimer) {
+      clearTimeout(this.hideMenuTimer);
+      this.hideMenuTimer = null;
+    }
   },
 
   watch: {
@@ -2377,7 +2453,7 @@ mark {
   font-weight: 500;
 }
 
-/* 📚 搜索内容区域 */
+/* 搜索内容区域 */
 .search-content {
   display: flex;
   gap: 30px;
@@ -2391,10 +2467,11 @@ mark {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
-  overflow: hidden;
+  overflow: visible; /* 允许子元素溢出，解决悬浮面板被遮挡问题 */
   height: fit-content;
   position: sticky;
   top: 20px;
+  z-index: 2; /* 提升层级，确保悬浮菜单在最上层 */
   flex-shrink: 0;
 }
 
@@ -2411,51 +2488,155 @@ mark {
 
 .category-list {
   padding: 10px 0;
+  position: relative;
 }
 
 .category-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px 20px;
-  color: #333;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  position: relative;
   border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
 }
 
 .category-item:last-child {
   border-bottom: none;
 }
 
-.category-item:hover {
+.category-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-main:hover {
   background: #f8f9fa;
   color: #667eea;
   transform: translateX(5px);
 }
 
-.category-item.active {
+.category-item.active .category-main {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
   color: #667eea;
   border-left: 3px solid #667eea;
 }
 
-.category-item i:first-child {
-  margin-right: 10px;
+.category-link {
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 14px;
+  transition: color 0.3s ease;
+  flex: 1;
 }
 
-.category-item i:last-child {
+.category-link:hover {
+  color: #667eea;
+}
+
+.category-item.active .category-link {
+  color: #667eea;
+}
+
+.category-arrow {
+  color: #ccc;
   font-size: 12px;
   opacity: 0.6;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.category-item:hover i:last-child {
+.category-item:hover .category-arrow {
   transform: translateX(3px);
+  opacity: 1;
+  color: #667eea;
 }
 
-/* 📖 图书列表区域 */
+.category-item.active .category-arrow {
+  color: #667eea;
+}
+
+/* � 子菜单面板 */
+.submenu-panel {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  z-index: 9999; /* 提高层级，确保显示在图书列表之上 */
+  margin-left: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.submenu-section {
+  padding: 0;
+}
+
+.submenu-title {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.submenu-title a {
+  color: #667eea;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.submenu-title a:hover {
+  color: #5a67d8;
+}
+
+.submenu-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.submenu-link {
+  padding: 6px 12px;
+  background: #f8f9fa;
+  color: #666;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.submenu-link:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.submenu-link.active {
+  background: #667eea;
+  color: white;
+  border-color: #5a67d8;
+}
+
+/* 过渡动画 */
+.submenu-fade-enter-active,
+.submenu-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.submenu-fade-enter,
+.submenu-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+/* �📖 图书列表区域 */
 .books-area {
   flex: 1;
   min-width: 0;
@@ -2485,6 +2666,7 @@ mark {
   transition: all 0.3s ease;
   border: 1px solid #f0f0f0;
   position: relative;
+  z-index: 1;
 }
 
 .book-card-modern:hover {
@@ -3300,6 +3482,13 @@ mark {
     border-radius: 8px;
     text-align: center;
     padding: 10px;
+  }
+
+  .submenu-panel {
+    width: 100%;
+    left: 0;
+    top: 100%;
+    margin-left: 0;
   }
 }
 
