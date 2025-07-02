@@ -82,15 +82,20 @@
                 </div>
               </div>
 
-              <!-- 📞 客服信息 -->
-              <div class="customer-service">
-                <div class="service-icon">
-                  <i class="el-icon-phone"></i>
+              <!-- 📢 公告栏 -->
+              <div class="announcement-board">
+                <div class="announcement-header">
+                  <i class="el-icon-bell"></i>
+                  <span>网站公告</span>
                 </div>
-                <div class="service-info">
-                  <h4>书店客服中心</h4>
-                  <p>预约电话 010-8430 857</p>
-                </div>
+                <ul class="announcement-list">
+                  <li v-for="item in announcements" :key="item.id" class="announcement-item">
+                    <router-link :to="{path: '/announcement', query: {id: item.id}}" class="announcement-link">
+                      {{ item.title }}
+                      <span class="date">{{ formatDate(item.publishTime) }}</span>
+                    </router-link>
+                  </li>
+                </ul>
               </div>
             </aside>
 
@@ -200,6 +205,7 @@
     import RecBookBox from "../../components/Index/RecommendedBooks";
     import {reqGetSortList} from "../../api/sort";
     import {reqGetTopicList} from "../../api/bookTopic";
+    import {reqGetEnabledAnnouncementList} from "../../api/announcement";
 
     export default {
         name: "index",
@@ -350,6 +356,20 @@
                 });
             },
 
+            // 获取公告列表
+            getAnnouncements() {
+                reqGetEnabledAnnouncementList().then(res => {
+                    if (res.code === 200) {
+                        this.announcements = res.announcementList || [];
+                    }
+                });
+            },
+
+            // 格式化日期
+            formatDate(timeStr) {
+                if (!timeStr) return '';
+                return timeStr.substr(0, 10);
+            },
         },
         computed:{
             optionsList(){
@@ -539,40 +559,58 @@
   color: white;
 }
 
-/* 📞 客服信息 */
-.customer-service {
+/* 📢 公告栏 */
+.announcement-board {
   background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
   padding: 20px;
   margin: 20px;
   border-radius: 12px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 15px;
 }
 
-.service-icon {
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
+.announcement-header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.announcement-header i {
   color: white;
   font-size: 24px;
 }
 
-.service-info h4 {
-  margin: 0 0 5px 0;
+.announcement-header span {
   color: white;
   font-size: 16px;
-  font-weight: 600;
 }
 
-.service-info p {
+.announcement-list {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
+}
+
+.announcement-item {
+  margin-bottom: 10px;
+}
+
+.announcement-link {
+  color: white;
+  text-decoration: none;
   font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.announcement-link:hover {
+  color: #667eea;
+}
+
+.date {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
 }
 
 /* 🎠 轮播图区域 */

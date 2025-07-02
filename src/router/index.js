@@ -511,6 +511,15 @@ export default new Router({
         requiresUser: true,
       },
     },
-
+    {
+      path: '/announcement',
+      name: 'AnnouncementPage',
+      component: () => import('../pages/Announcement/Announcement')
+    },
+    {
+      path: '/about',
+      name: 'AboutPage',
+      component: () => import('../pages/About/About')
+    },
   ]
 })
