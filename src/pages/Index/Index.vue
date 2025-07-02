@@ -84,13 +84,13 @@
 
               <!-- 📢 公告栏 -->
               <div class="announcement-board">
-                <div class="announcement-header">
+                <router-link to="/announcement" class="announcement-header">
                   <i class="el-icon-bell"></i>
                   <span>网站公告</span>
-                </div>
+                </router-link>
                 <ul class="announcement-list">
                   <li v-for="item in announcements" :key="item.id" class="announcement-item">
-                    <router-link :to="{path: '/announcement', query: {id: item.id}}" class="announcement-link">
+                    <router-link :to="{path: '/announcement/detail', query: {id: item.id}}" class="announcement-link">
                       {{ item.title }}
                       <span class="date">{{ formatDate(item.publishTime) }}</span>
                     </router-link>
@@ -360,7 +360,7 @@
             getAnnouncements() {
                 reqGetEnabledAnnouncementList().then(res => {
                     if (res.code === 200) {
-                        this.announcements = res.announcementList || [];
+                        this.announcements = (res.announcementList || []).slice(0,5);
                     }
                 });
             },

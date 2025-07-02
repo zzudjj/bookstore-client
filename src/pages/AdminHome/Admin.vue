@@ -126,6 +126,22 @@
             </el-menu-item>
           </el-submenu>
 
+          <!-- 📰 内容管理 -->
+          <el-submenu index="content" class="menu-submenu">
+            <template slot="title">
+              <i class="el-icon-notebook-2 menu-icon"></i>
+              <span class="menu-title">内容管理</span>
+            </template>
+            <el-menu-item index="/admin/announcementManage" class="submenu-item">
+              <i class="el-icon-bell"></i>
+              <span>公告管理</span>
+            </el-menu-item>
+            <el-menu-item index="/admin/aboutManage" class="submenu-item">
+              <i class="el-icon-info"></i>
+              <span>网站介绍</span>
+            </el-menu-item>
+          </el-submenu>
+
         </el-menu>
 
         <!-- 🔧 侧边栏底部 -->

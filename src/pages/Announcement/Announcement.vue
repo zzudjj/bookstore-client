@@ -6,10 +6,10 @@
       <h2 class="title">网站公告</h2>
       <ul class="announcement-list">
         <li v-for="item in announcements" :key="item.id" class="item">
-          <h3>{{ item.title }}</h3>
-          <p class="time">{{ formatDate(item.publishTime) }}</p>
-          <div class="content" v-html="item.content"></div>
-          <hr/>
+          <router-link :to="{path:'/announcement/detail', query:{id:item.id}}" class="detail-link">
+            <h3>{{ item.title }}</h3>
+            <p class="time">{{ formatDate(item.publishTime) }}</p>
+          </router-link>
         </li>
       </ul>
     </main>

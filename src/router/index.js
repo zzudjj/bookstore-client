@@ -386,7 +386,27 @@ export default new Router({
             url: '/admin/subTopicList',
             requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
           },
-        }
+        },
+        {
+          path: 'announcementManage',
+          name: 'AnnouncementManage',
+          component: () => import('../components/AdminHome/content/announcement/AnnouncementManage'),
+          meta: {
+            title: '公告管理',
+            url: '/admin/announcementManage',
+            requiresAuth: true
+          }
+        },
+        {
+          path: 'aboutManage',
+          name: 'AboutManage',
+          component: () => import('../components/AdminHome/content/about/AboutManage'),
+          meta: {
+            title: '网站介绍',
+            url: '/admin/aboutManage',
+            requiresAuth: true
+          }
+        },
       ]
     },
     {
@@ -520,6 +540,11 @@ export default new Router({
       path: '/about',
       name: 'AboutPage',
       component: () => import('../pages/About/About')
+    },
+    {
+      path: '/announcement/detail',
+      name: 'AnnouncementDetail',
+      component: () => import('../pages/Announcement/AnnouncementDetail')
     },
   ]
 })
