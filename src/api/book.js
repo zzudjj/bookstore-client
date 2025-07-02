@@ -65,6 +65,7 @@ export const reqGetSortBookList = (sortId)=>ajax(BASE_URL+'/getSortBookList',{so
 //getSortBookListBySort
 export const reqGetBookListBySort = (sortId,page,pageSize)=>ajax(BASE_URL+'/getBookListBySort',{sortId,page, pageSize})
 
+
 // 搜索图书 - 标准接口（使用POST避免中文编码问题）
 export const reqSearchBooks = (keyword, page = 1, pageSize = 10) => {
   return ajax(BASE_URL + '/searchBooks', {

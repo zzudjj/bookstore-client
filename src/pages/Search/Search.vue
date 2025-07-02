@@ -74,131 +74,74 @@
     <main class="search-main">
       <div class="container">
 
-        <!-- 🎛️ 搜索控制面板 -->
-        <div class="search-controls-panel" v-if="bookList.length > 0 || searching || searchKeyword || sortName">
-          <div class="controls-container">
-            <div class="controls-left">
-              <!-- 面包屑导航 -->
+        <!-- 📊 统一的搜索结果头部 -->
+        <div class="unified-search-header" v-if="searchKeyword || sortName || searching">
+          <div class="header-content-wrapper">
+            <div class="header-main-info">
               <div class="breadcrumb-nav">
                 <el-breadcrumb separator="/">
-                  <el-breadcrumb-item>
-                    <router-link to="/" class="breadcrumb-link">
-                      <i class="el-icon-house"></i>
-                      首页
-                    </router-link>
-                  </el-breadcrumb-item>
-                  <el-breadcrumb-item v-if="sortName">
-                    <span class="breadcrumb-category">{{ sortName }}</span>
-                  </el-breadcrumb-item>
-                  <el-breadcrumb-item v-if="searchKeyword">
-                    <span class="breadcrumb-search">搜索"{{ searchKeyword }}"</span>
-                  </el-breadcrumb-item>
-                  <el-breadcrumb-item v-if="!sortName && !searchKeyword">
-                    <span>图书搜索</span>
-                  </el-breadcrumb-item>
+                  <el-breadcrumb-item :to="{ path: '/' }"><i class="el-icon-house"></i> 首页</el-breadcrumb-item>
+                  <el-breadcrumb-item v-if="searchKeyword">对“{{ searchKeyword }}”的搜索结果</el-breadcrumb-item>
+                  <el-breadcrumb-item v-else-if="sortName">{{ sortName }}</el-breadcrumb-item>
+                  <el-breadcrumb-item v-else>全部图书</el-breadcrumb-item>
                 </el-breadcrumb>
               </div>
-
-              <!-- 搜索统计 -->
-              <div class="search-stats">
-                <div v-if="total > 0" class="stats-content">
-                  <span class="stats-text">
-                    找到 <strong class="stats-number">{{ total.toLocaleString() }}</strong> 个结果
+              <div class="results-summary">
+                <h2 class="results-title">
+                  <i class="el-icon-document-checked results-icon"></i>
+                  <span v-if="searchKeyword">搜索结果</span>
+                  <span v-else-if="sortName">{{ sortName }}</span>
+                  <span v-else>全部图书</span>
+                </h2>
+                <div class="result-stats" v-if="!searching">
+                  <span v-if="total > 0" class="result-count">
+                    共 <strong class="count-number">{{ total }}</strong> 个结果
                   </span>
-                  <span v-if="searchKeyword" class="stats-keyword">
-                    关于 "<em class="keyword-em">{{ searchKeyword }}</em>"
+                  <span v-else class="no-results-text">
+                    未找到匹配的结果
                   </span>
-                </div>
-                <div v-else-if="searchKeyword || sortName" class="stats-content no-results">
-                  <i class="el-icon-warning-outline"></i>
-                  <span class="no-results-text">未找到相关结果</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="controls-right">
-              <!-- 搜索选项 -->
-              <div class="search-options-compact">
-                <!-- <el-tooltip content="启用实时搜索" placement="top">
-                  <div class="option-item">
-                    <el-switch
-                      v-model="enableRealTimeSearch"
-                      @change="toggleRealTimeSearch"
-                      size="small">
-                    </el-switch>
-                    <span class="option-label">实时搜索</span>
-                  </div>
-                </el-tooltip> -->
-
-                <el-dropdown v-if="searchHistory.length > 0" trigger="click" class="history-dropdown">
-                  <el-button type="text" size="small" class="history-btn">
-                    <i class="el-icon-time"></i>
-                    <span>历史</span>
-                    <i class="el-icon-arrow-down"></i>
+                  <el-button v-if="searchKeyword" type="text" size="mini" @click="clearSearch" class="clear-search-btn">
+                    <i class="el-icon-circle-close"></i>
+                    <span>清除搜索</span>
                   </el-button>
-                  <el-dropdown-menu slot="dropdown" class="history-menu">
-                    <div class="history-header">最近搜索</div>
-                    <el-dropdown-item
-                      v-for="(item, index) in searchHistory.slice(0, 5)"
-                      :key="index"
-                      @click.native="selectSuggestion(item)"
-                      class="history-item">
-                      <i class="el-icon-time"></i>
-                      <span>{{ item }}</span>
-                    </el-dropdown-item>
-                    <el-dropdown-item divided @click.native="clearSearchHistory" class="clear-history">
-                      <i class="el-icon-delete"></i>
-                      <span>清除历史</span>
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 📊 搜索结果头部 -->
-        <div class="results-header" v-if="bookList.length > 0 || searching">
-          <div class="results-info">
-            <div class="results-title-section">
-              <h2 class="results-title">
-                <i class="el-icon-document-checked results-icon"></i>
-                <span v-if="searchKeyword">搜索结果</span>
-                <span v-else-if="sortName">{{ sortName }}</span>
-                <span v-else>图书列表</span>
-              </h2>
-              <div class="results-meta">
-                <div class="result-stats">
-                  <span class="result-count">
-                    共找到 <strong class="count-number">{{ total }}</strong> 本图书
-                  </span>
-                  <span v-if="searchKeyword" class="search-info">
-                    关于 "<span class="keyword-highlight">{{ searchKeyword }}</span>" 的搜索结果
-                    <el-button
-                      type="text"
-                      size="mini"
-                      @click="clearSearch"
-                      class="clear-search-btn">
-                      <i class="el-icon-circle-close"></i>
-                      清除
-                    </el-button>
-                  </span>
                 </div>
               </div>
             </div>
+            <div class="header-actions">
+              <el-dropdown v-if="searchHistory.length > 0" trigger="click" class="history-dropdown">
+                <el-button type="text" size="small" class="history-btn">
+                  <i class="el-icon-time"></i>
+                  <span>搜索历史</span>
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown" class="history-menu">
+                  <div class="history-header">最近搜索</div>
+                  <el-dropdown-item
+                    v-for="(item, index) in searchHistory.slice(0, 5)"
+                    :key="index"
+                    @click.native="selectSuggestion(item)"
+                    class="history-item">
+                    <i class="el-icon-time"></i>
+                    <span>{{ item }}</span>
+                  </el-dropdown-item>
+                  <el-dropdown-item divided @click.native="clearSearchHistory" class="clear-history">
+                    <i class="el-icon-delete"></i>
+                    <span>清除历史</span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </div>
           </div>
         </div>
 
-        <!-- 📚 搜索内容区域 -->
+        <!-- 搜索内容区域 -->
         <div class="search-content">
-
-          <!-- 📋 分类侧边栏 -->
+          <!-- 分类侧边栏 -->
           <aside class="category-sidebar">
             <div class="sidebar-header">
               <i class="el-icon-collection"></i>
               <span>图书分类</span>
             </div>
-
             <div class="category-list">
               <router-link
                 v-for="sort in sortList"
@@ -213,88 +156,76 @@
             </div>
           </aside>
 
-          <!-- 📖 图书列表区域 -->
+          <!-- 图书列表区域 -->
           <div class="books-area">
-
-            <!-- 🔄 加载状态 -->
-            <div v-if="searching" class="loading-container">
-              <div class="loading-spinner">
-                <i class="el-icon-loading"></i>
-              </div>
-              <p class="loading-text">正在搜索中...</p>
-            </div>
-
-            <!-- 📚 图书列表 -->
-            <div v-else-if="bookList.length > 0" class="books-section">
-
-              <!-- 🎛️ 工具栏 -->
-              <div class="books-toolbar">
-                <div class="toolbar-left">
-                  <div class="sort-section">
-                    <span class="toolbar-label">
+            <!-- 工具栏 -->
+            <div class="books-toolbar" v-if="!searching">
+              <div class="toolbar-left">
+                <div class="sort-section">
+                  <span class="toolbar-label">
+                    <i class="el-icon-sort"></i>
+                    排序
+                  </span>
+                  <el-select
+                    v-model="sortType"
+                    @change="handleSortChange"
+                    size="small"
+                    class="sort-select">
+                    <el-option label="默认排序" value="default">
                       <i class="el-icon-sort"></i>
-                      排序
-                    </span>
-                    <el-select
-                      v-model="sortType"
-                      @change="handleSortChange"
-                      size="small"
-                      class="sort-select">
-                      <el-option label="默认排序" value="default">
-                        <i class="el-icon-sort"></i>
-                        <span>默认排序</span>
-                      </el-option>
-                      <el-option label="价格从低到高" value="price_asc">
-                        <i class="el-icon-bottom"></i>
-                        <span>价格从低到高</span>
-                      </el-option>
-                      <el-option label="价格从高到低" value="price_desc">
-                        <i class="el-icon-top"></i>
-                        <span>价格从高到低</span>
-                      </el-option>
-                      <el-option label="最新发布" value="time_desc">
-                        <i class="el-icon-time"></i>
-                        <span>最新发布</span>
-                      </el-option>
-                      <el-option label="销量最高" value="sales_desc">
-                        <i class="el-icon-star-on"></i>
-                        <span>销量最高</span>
-                      </el-option>
-                    </el-select>
-                  </div>
+                      <span>默认排序</span>
+                    </el-option>
+                    <el-option label="价格从低到高" value="price_asc">
+                      <i class="el-icon-bottom"></i>
+                      <span>价格从低到高</span>
+                    </el-option>
+                    <el-option label="价格从高到低" value="price_desc">
+                      <i class="el-icon-top"></i>
+                      <span>价格从高到低</span>
+                    </el-option>
+                    <el-option label="最新发布" value="time_desc">
+                      <i class="el-icon-time"></i>
+                      <span>最新发布</span>
+                    </el-option>
+                    <el-option label="销量最高" value="sales_desc">
+                      <i class="el-icon-star-on"></i>
+                      <span>销量最高</span>
+                    </el-option>
+                  </el-select>
+                </div>
 
-                  <!-- 筛选选项 -->
-                  <div class="filter-section">
-                    <span class="toolbar-label">
-                      <i class="el-icon-filter"></i>
-                      筛选
-                    </span>
-                    <el-button-group size="small" class="filter-group">
-                      <el-button
-                        :type="priceFilter === 'all' ? 'primary' : 'default'"
-                        @click="setPriceFilter('all')"
-                        class="filter-btn">
-                        全部价格
-                      </el-button>
-                      <el-button
-                        :type="priceFilter === 'low' ? 'primary' : 'default'"
-                        @click="setPriceFilter('low')"
-                        class="filter-btn">
-                        ¥0-50
-                      </el-button>
-                      <el-button
-                        :type="priceFilter === 'medium' ? 'primary' : 'default'"
-                        @click="setPriceFilter('medium')"
-                        class="filter-btn">
-                        ¥50-100
-                      </el-button>
-                      <el-button
-                        :type="priceFilter === 'high' ? 'primary' : 'default'"
-                        @click="setPriceFilter('high')"
-                        class="filter-btn">
-                        ¥100+
-                      </el-button>
-                    </el-button-group>
+                <!-- 筛选选项 -->
+                <div class="filter-section">
+                  <span class="toolbar-label">
+                    <i class="el-icon-filter"></i>
+                    筛选
+                  </span>
+                  <el-button-group size="small" class="filter-group">
+                    <el-button
+                      :type="priceFilter === 'all' ? 'primary' : 'default'"
+                      @click="setPriceFilter('all')"
+                      class="filter-btn">
+                      全部价格
+                    </el-button>
+                    <el-button
+                      :type="priceFilter === 'low' ? 'primary' : 'default'"
+                      @click="setPriceFilter('low')"
+                      class="filter-btn">
+                      ¥0-50
+                    </el-button>
+                    <el-button
+                      :type="priceFilter === 'medium' ? 'primary' : 'default'"
+                      @click="setPriceFilter('medium')"
+                      class="filter-btn">
+                      ¥50-100
+                    </el-button>
+                    <el-button
+                      :type="priceFilter === 'high' ? 'primary' : 'default'"
+                      @click="setPriceFilter('high')"
+                      class="filter-btn">
+                      ¥100+
+                    </el-button>
+                  </el-button-group>
                   </div>
                 </div>
 
@@ -338,7 +269,18 @@
                     </el-select>
                   </div>
                 </div>
+            </div>
+
+            <!-- 🔄 加载状态 -->
+            <div v-if="searching" class="loading-container">
+              <div class="loading-spinner">
+                <i class="el-icon-loading"></i>
               </div>
+              <p class="loading-text">正在搜索中...</p>
+            </div>
+
+            <!-- 📚 图书列表 -->
+            <div v-else-if="bookList.length > 0" class="books-section">
 
               <!-- 📚 图书容器 -->
               <div :class="['books-container', `view-${viewMode}`]">
@@ -733,6 +675,8 @@ export default {
 
         // 优先使用标准搜索API
         const response = await reqSearchBooks(keyword, page, pageSize);
+        // console.log('Received API response:', JSON.stringify(response)); // 诊断日志
+
 
         if (response && response.code == 200 && response.bookList) {
           const { bookList, total, keyword: responseKeyword } = response;
@@ -2258,89 +2202,157 @@ mark {
 }
 
 /* 📊 搜索结果头部 */
-.search-header {
-  background: white;
-  border-radius: 12px;
-  padding: 25px 30px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+.unified-search-header {
+  background-color: #fff;
+  padding: 20px 25px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+  border: 1px solid #EBEEF5;
+}
+
+.header-content-wrapper {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
+  align-items: flex-start;
+  width: 100%;
 }
 
-.search-info {
-  flex: 1;
-}
-
-.search-title {
+.header-main-info {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 10px 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #2c3e50;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.search-title i {
-  color: #667eea;
-  font-size: 28px;
-}
-
-.search-meta {
+.results-summary {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.result-count {
-  color: #7f8c8d;
-  font-size: 14px;
-}
-
-.result-count strong {
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-.current-category {
-  color: #7f8c8d;
-  font-size: 14px;
-}
-
-.category-name {
-  color: #667eea;
-  font-weight: 500;
-}
-
-.search-keyword {
-  color: #7f8c8d;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 5px;
 }
 
-.keyword-text {
-  color: #e74c3c;
+.results-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.results-icon {
+  color: #409EFF;
+}
+
+.result-stats {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.result-count .count-number {
+  color: #409EFF;
+  font-weight: bold;
+}
+
+.no-results-text {
+  color: #909399;
+}
+
+.clear-search-btn {
+  font-size: 13px;
+}
+
+.header-actions {
+  flex-shrink: 0;
+  padding-left: 20px;
+}
+
+.history-btn {
+  color: #606266;
+}
+
+.history-menu {
+  width: 200px;
+}
+
+/* 📚 搜索内容区域 */
+.search-content {
+  display: flex;
+  gap: 25px;
+  align-items: flex-start;
+}
+
+.books-area {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 📋 分类侧边栏 */
+.category-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.05);
+  border: 1px solid #EBEEF5;
+  align-self: flex-start;
+}
+
+.sidebar-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #EBEEF5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: #606266;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.category-item:hover {
+  background-color: #f5f7fa;
+  color: #409EFF;
+}
+
+.category-item.active {
+  background-color: #ecf5ff;
+  color: #409EFF;
   font-weight: 500;
-  background: rgba(231, 76, 60, 0.1);
-  padding: 2px 8px;
-  border-radius: 4px;
 }
 
-.clear-search {
-  color: #999;
-  padding: 0;
-  margin-left: 5px;
+.category-item span {
+  flex-grow: 1;
+  margin: 0 8px;
 }
 
-.clear-search:hover {
-  color: #e74c3c;
+.category-item .el-icon-arrow-right {
+  transition: transform 0.3s ease;
+}
+
+.category-item.active .el-icon-arrow-right {
+  transform: translateX(3px);
 }
 
 /* 🎛️ 搜索控制区域 */
