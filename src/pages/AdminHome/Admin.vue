@@ -361,6 +361,17 @@ export default {
       });
     },
 
+    // 处理窗口大小变化
+    handleResize() {
+      // 可以在这里添加响应式布局逻辑
+      // 例如：根据窗口大小调整侧边栏状态
+      const width = window.innerWidth;
+      if (width < 768) {
+        // 小屏幕时可能需要收起侧边栏
+        this.isCollapse = true;
+      }
+    },
+
     ...mapMutations(['REMOVE_INFO'])
   },
 
