@@ -28,7 +28,7 @@
         </div>
 
         <div class="title"><h3>商品清单</h3></div>
-        <div class="list_box" v-for="book in OrderInitDto.bookList">
+        <div class="list_box" v-for="(book, index) in OrderInitDto.bookList" :key="index">
           <div class="bookInfo">
             <div class="book_item">
               <el-image class="bookImg" :src="getBookCoverUrl(book.coverImg)" fit="fill"></el-image>
@@ -215,13 +215,46 @@
                 this.initSpikeOrder(this.$route.query.orderId, this.account);
             } else {
                 // 普通订单初始化
-                let list = this.$route.query.ids;
-                let idList = JSON.parse(list);
-                let ids = [];
-                for(let i=0;i<idList.length-1;i++){
-                    ids.push(idList[i]);
+                try {
+                    const idsParam = this.$route.query.ids;
+                    const fromParam = this.$route.query.from;
+
+                    if (!idsParam) {
+                        this.$message({
+                            message: "订单参数错误，请重新选择商品",
+                            type: "error"
+                        });
+                        this.$router.push('/cart');
+                        return;
+                    }
+
+                    // 解析商品ID数组
+                    let bookIds = JSON.parse(idsParam);
+
+                    // 确保bookIds是数组
+                    if (!Array.isArray(bookIds)) {
+                        bookIds = [bookIds];
+                    }
+
+                    // 获取来源标识，默认为0（详情页）
+                    const from = fromParam ? parseInt(fromParam) : 0;
+
+                    console.log('订单初始化参数:', {
+                        bookIds: bookIds,
+                        from: from,
+                        account: this.account
+                    });
+
+                    this.initOrder(bookIds, from);
+
+                } catch (error) {
+                    console.error('订单参数解析错误:', error);
+                    this.$message({
+                        message: "订单参数解析失败，请重新选择商品",
+                        type: "error"
+                    });
+                    this.$router.push('/cart');
                 }
-                this.initOrder(ids,idList[idList.length-1],this.account);
             }
         },
         methods:{
@@ -244,7 +277,7 @@
             },
 
             //提交处理
-            onSubmit(formName) {
+            onSubmit() {
                 if(this.isEdit){
                     this.modifyAddress();
                 }else {
@@ -365,7 +398,7 @@
                             type: "warning"
                         })
                     }
-                }).catch(err=>{
+                }).catch(()=>{
                     this.$message({
                         message: "初始化秒杀订单出错了，请检查网络连接",
                         type: "error"
@@ -374,7 +407,7 @@
             },
 
             //初始化订单
-            initOrder(ids,from,account){
+            initOrder(ids,from){
                 reqInitOrder(ids,from,this.account).then(response=>{
                     if(response.code==200){
                         console.log("=========OrderInitDto==========="+response.orderInitDto+"==============")
@@ -392,7 +425,7 @@
                             type: "warning"
                         })
                     }
-                }).catch(err=>{
+                }).catch(()=>{
                     this.$message({
                         message: "初始化订单出错了，请检查网络连接",
                         type: "error"
@@ -420,7 +453,7 @@
                             type: "warning"
                         })
                     }
-                }).catch(err=>{
+                }).catch(()=>{
                     this.$message({
                         message: "下单失败了",
                         type: "warning"

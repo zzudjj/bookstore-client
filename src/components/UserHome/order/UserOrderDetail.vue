@@ -61,7 +61,7 @@
             align="center">
             <template slot-scope="scope">
               <el-image style="height: 120px"
-                        :src="scope.row.book.coverImg">
+                        :src="getImageUrl(scope.row.book.coverImg)">
                 <div slot="error" class="image-slot">
                   <i class="el-icon-picture-outline"></i>
                 </div>
@@ -134,6 +134,7 @@
 
 <script>
     import {reqAdminGetOrderDetail} from "../../../api/order";
+    import {getImageUrl} from "../../../utils/imageUtils";
 
     export default {
         name: "UserOrderDetail",
@@ -221,6 +222,10 @@
                     console.log(err);
                 })
             },
+            // 获取图片完整URL
+            getImageUrl(imagePath) {
+                return getImageUrl(imagePath);
+            }
         }
     }
 </script>
@@ -236,11 +241,14 @@
   .content{
     margin: 30px auto 30px;
     width: 100%;
+    max-width: 1200px;
     box-sizing: border-box;
     background-color: white;
+    padding: 0 20px;
   }
   .detail_title{
-    width: 940px;
+    width: 100%;
+    max-width: 940px;
     height: 90px;
     margin: 0px auto;
     line-height: 90px;
@@ -248,13 +256,16 @@
     border: 1px solid #dcdcdc;
     border-bottom: none;
     padding: 0px 15px;
+    box-sizing: border-box;
   }
   .info{
-    width: 940px;
+    width: 100%;
+    max-width: 940px;
     margin: 0px auto;
     padding: 0px 20px 20px;
     border: 1px solid #dcdcdc;
     border-top: none;
+    box-sizing: border-box;
   }
   .info_title{
     width: 100%;
@@ -266,6 +277,8 @@
   .table-layout {
     border-left: 1px solid #DCDFE6;
     border-top: 1px solid #DCDFE6;
+    width: 100%;
+    overflow-x: auto;
   }
   .table-cell {
     height: 60px;
@@ -277,6 +290,8 @@
     color: #606266;
     text-align: center;
     overflow: hidden;
+    word-wrap: break-word;
+    word-break: break-all;
   }
 
   .table-cell-title {
@@ -287,5 +302,24 @@
     text-align: center;
     font-size: 14px;
     color: #303133;
+    word-wrap: break-word;
+    word-break: break-all;
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .content {
+      padding: 0 10px;
+    }
+    .detail_title, .info {
+      max-width: 100%;
+    }
+    .table-cell, .table-cell-title {
+      font-size: 12px;
+      padding: 8px 4px;
+      height: auto;
+      min-height: 50px;
+      line-height: 1.4;
+    }
   }
 </style>

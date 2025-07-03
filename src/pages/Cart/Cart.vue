@@ -447,18 +447,48 @@ export default {
           message: "请选择要购买的商品",
           type: "warning"
         });
-      } else {
-        let arr = [];
+        return;
+      }
+
+      try {
+        // 提取选中商品的ID（这里的id是商品ID，不是购物车ID）
+        let bookIds = [];
         for (let i = 0; i < this.multipleSelection.length; i++) {
-          arr.push(this.multipleSelection[i].id);
+          const selectedItem = this.multipleSelection[i];
+          if (selectedItem && selectedItem.id) {
+            bookIds.push(selectedItem.id);
+          }
         }
-        arr.push(1);
-        let ids = JSON.stringify(arr);
+
+        if (bookIds.length === 0) {
+          this.$message({
+            message: "选中的商品数据异常，请刷新页面重试",
+            type: "error"
+          });
+          return;
+        }
+
+        // 添加来源标识：1表示来自购物车
+        const orderData = {
+          bookIds: bookIds,
+          from: 1  // 明确标识来源
+        };
+
+        console.log('购物车结算数据:', orderData);
+
         this.$router.push({
           path: "/buyPage",
           query: {
-            ids: ids
+            ids: JSON.stringify(bookIds),
+            from: 1
           }
+        });
+
+      } catch (error) {
+        console.error('结算数据处理错误:', error);
+        this.$message({
+          message: "结算数据处理失败，请重试",
+          type: "error"
         });
       }
     },

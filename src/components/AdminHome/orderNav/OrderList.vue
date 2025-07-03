@@ -7,32 +7,34 @@
         <el-button
           style="float: right"
           type="primary"
-          size="small">
+          size="small"
+          @click="handleSearch">
           查询
         </el-button>
         <el-button
           style="float: right;margin-right: 15px"
-          size="small">
+          size="small"
+          @click="resetSearch">
           重置
         </el-button>
       </div>
       <div style="margin-top: 25px">
         <el-form :inline="true" :model="search" size="small" label-width="140px">
           <el-form-item label="订单编号">
-            <el-input v-model="search.bookName"></el-input>
+            <el-input v-model="search.orderId" placeholder="请输入订单编号"></el-input>
           </el-form-item>
           <el-form-item label="用户账号">
-            <el-input v-model="search.isbn"></el-input>
+            <el-input v-model="search.account" placeholder="请输入用户账号"></el-input>
           </el-form-item>
           <el-form-item label="订单状态">
-            <el-select v-model="book.publish" placeholder="请选择出版社" prop="publish">
-              <el-option
-                v-for="item in publishList"
-                :key="item"
-                :label="item"
-                :value="item"
-              >
-              </el-option>
+            <el-select v-model="search.orderStatus" placeholder="请选择订单状态">
+              <el-option label="全部订单" value=""></el-option>
+              <el-option label="待付款" value="待付款"></el-option>
+              <el-option label="已付款" value="已付款"></el-option>
+              <el-option label="已发货" value="已发货"></el-option>
+              <el-option label="已收货" value="已收货"></el-option>
+              <el-option label="已完成" value="已完成"></el-option>
+              <el-option label="已取消" value="已取消"></el-option>
             </el-select>
           </el-form-item>
         </el-form>
@@ -95,34 +97,44 @@
         </el-table-column>
         <el-table-column
           label="操作"
-          width="200"
+          width="240"
           align="center">
           <template slot-scope="scope">
-            <p>
-              <el-button
-                size="mini"
-                @click="goToOrderDetail(scope.$index,scope.row)"
-              >查看订单
-              </el-button>
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
-              >删除订单
-              </el-button>
-            </p>
-            <p>
-              <el-button
-                size="mini"
-                @click="goToDeliver(scope.$index,scope.row)"
-              >订单发货
-              </el-button>
-              <el-button
-                size="mini"
-                @click="handleDelete(scope.$index, scope.row)"
-              >订单跟踪
-              </el-button>
-            </p>
+            <div class="action-buttons">
+              <div class="button-row">
+                <el-button
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-view"
+                  @click="goToOrderDetail(scope.$index,scope.row)"
+                >详情
+                </el-button>
+                <el-button
+                  size="mini"
+                  type="success"
+                  icon="el-icon-truck"
+                  @click="goToDeliver(scope.$index,scope.row)"
+                  :disabled="!canDeliver(scope.row.orderStatus)"
+                >发货
+                </el-button>
+              </div>
+              <div class="button-row">
+                <el-button
+                  size="mini"
+                  type="warning"
+                  icon="el-icon-edit"
+                  @click="modifyOrderStatus(scope.row)"
+                >状态
+                </el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  icon="el-icon-delete"
+                  @click="handleDelete(scope.$index, scope.row)"
+                >删除
+                </el-button>
+              </div>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -164,7 +176,7 @@
 
 <script>
     import {reqGetPublishNames} from "../../../api/publish";
-    import {reqAdminGetOrderList,reqDelOrder} from "../../../api/order";
+    import {reqAdminGetOrderList,reqAdminGetOrderListWithParams,reqDelOrder} from "../../../api/order";
     import axios from 'axios';
     export default {
         name: "OrderList",
@@ -173,6 +185,13 @@
                 loading: true,
                 currentPage: 1,
                 page_size: 5,
+
+                // 搜索条件
+                search: {
+                    orderId: '',
+                    account: '',
+                    orderStatus: ''
+                },
 
                 orderList:{
                     id:null,
@@ -268,8 +287,8 @@
         },
         created:function () {
             this.getPublishName();
-            this.getOrderList(1,5);
-            console.log("init起作用了！")
+            this.getOrderList(this.currentPage, this.page_size);
+            console.log("订单列表组件初始化完成！")
         },
         methods: {
             //处理选项框的操作，获取表格中哪些选项被选中
@@ -360,11 +379,21 @@
             },
             //得到订单列表
             getOrderList(page,pageSize){
-                this.loading=false;
-                reqAdminGetOrderList(page,pageSize).then(response=>{
+                this.loading=true;
+                // 构建查询参数
+                const params = {
+                    page: page,
+                    pageSize: pageSize,
+                    orderStatus: this.search.orderStatus || '',
+                    orderId: this.search.orderId || '',
+                    account: this.search.account || ''
+                };
+
+                reqAdminGetOrderListWithParams(params).then(response=>{
+                    this.loading=false;
                     if(response.code==200){
                         this.total = response.total;
-                        console.log(this.total);
+                        console.log('获取订单列表成功，总数:', this.total);
                         this.tableData = response.orderDtoList;
                     }else {
                         this.$message({
@@ -373,7 +402,12 @@
                         })
                     }
                 }).catch(err=>{
-                    console.log(err);
+                    this.loading=false;
+                    console.log('获取订单列表失败:', err);
+                    this.$message({
+                        message: "获取订单列表失败",
+                        type: "error"
+                    })
                 })
             },
 
@@ -440,6 +474,72 @@
                 });
             },
 
+            // 搜索功能
+            handleSearch() {
+                console.log('执行搜索，搜索条件:', this.search);
+                this.currentPage = 1;
+                this.getOrderList(this.currentPage, this.page_size);
+            },
+
+            // 重置搜索
+            resetSearch() {
+                console.log('重置搜索条件');
+                this.search = {
+                    orderId: '',
+                    account: '',
+                    orderStatus: ''
+                };
+                this.currentPage = 1;
+                this.getOrderList(this.currentPage, this.page_size);
+            },
+
+            // 判断是否可以发货
+            canDeliver(orderStatus) {
+                return orderStatus === '已付款';
+            },
+
+            // 修改订单状态
+            modifyOrderStatus(row) {
+                this.$prompt('请输入新的订单状态', '修改订单状态', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    inputValue: row.orderStatus,
+                    inputValidator: (value) => {
+                        const validStatuses = ['待付款', '已付款', '已发货', '已收货', '已完成', '已取消'];
+                        return validStatuses.includes(value) || '请输入有效的订单状态';
+                    }
+                }).then(({ value }) => {
+                    // 调用修改订单状态的API
+                    this.updateOrderStatus(row.id, value);
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消修改'
+                    });
+                });
+            },
+
+            // 更新订单状态API调用
+            updateOrderStatus(orderId, newStatus) {
+                // 这里需要导入相应的API方法
+                this.$http.get('/api/modifyOrderStatus', {
+                    params: {
+                        id: orderId,
+                        orderStatus: newStatus
+                    }
+                }).then(response => {
+                    if (response.data.code === 200) {
+                        this.$message.success('订单状态修改成功');
+                        this.getOrderList(this.currentPage, this.page_size);
+                    } else {
+                        this.$message.error(response.data.message || '修改失败');
+                    }
+                }).catch(error => {
+                    console.error('修改订单状态失败:', error);
+                    this.$message.error('修改失败，请重试');
+                });
+            },
+
 
             //得到并设置出版的下拉选择器
             getPublishName(){
@@ -472,7 +572,42 @@
     line-height: 40px;
   }
 
-  /deep/ .el-input__inner {
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .action-buttons .el-button {
+    margin: 0;
+    padding: 5px 8px;
+    font-size: 12px;
+    min-width: 50px;
+    flex: 1;
+  }
+
+  .action-buttons .el-button--mini {
+    padding: 4px 6px;
+  }
+
+  /* 禁用状态的按钮样式 */
+  .action-buttons .el-button:disabled {
+    opacity: 0.5;
+  }
+
+  /* 表格行高度优化 */
+  ::v-deep .el-table .el-table__row {
+    height: 60px;
+  }
+
+  ::v-deep .el-input__inner {
     padding-right: 0px;
   }
 

@@ -79,7 +79,7 @@ export default {
   name: "BaseNavigation",
   data() {
     return {
-      cartCount: 3 // 模拟购物车数量
+      cartCount: 0 // 隐藏购物车数量提示
     };
   },
   methods: {

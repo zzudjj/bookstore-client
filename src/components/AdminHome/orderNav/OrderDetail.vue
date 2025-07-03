@@ -295,15 +295,19 @@
   .content{
     margin: 0px auto;
     width: 100%;
+    max-width: 1200px;
     box-sizing: border-box;
+    padding: 0 20px;
   }
   .step{
-    width: 900px;
+    width: 100%;
+    max-width: 900px;
     height: 100px;
     margin: 0px auto;
   }
   .detail_title{
-    width: 940px;
+    width: 100%;
+    max-width: 940px;
     height: 90px;
     margin: 0px auto;
     line-height: 90px;
@@ -311,13 +315,16 @@
     border: 1px solid #dcdcdc;
     border-bottom: none;
     padding: 0px 15px;
+    box-sizing: border-box;
   }
   .info{
-    width: 940px;
+    width: 100%;
+    max-width: 940px;
     margin: 0px auto;
     padding: 0px 20px 20px;
     border: 1px solid #dcdcdc;
     border-top: none;
+    box-sizing: border-box;
   }
   .info_title{
     width: 100%;
@@ -350,5 +357,34 @@
     text-align: center;
     font-size: 14px;
     color: #303133;
+    word-wrap: break-word;
+    word-break: break-all;
+  }
+
+  .table-layout {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .table-cell {
+    word-wrap: break-word;
+    word-break: break-all;
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .content {
+      padding: 0 10px;
+    }
+    .step, .detail_title, .info {
+      max-width: 100%;
+    }
+    .table-cell, .table-cell-title {
+      font-size: 12px;
+      padding: 8px 4px;
+      height: auto;
+      min-height: 50px;
+      line-height: 1.4;
+    }
   }
 </style>

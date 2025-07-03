@@ -17,6 +17,9 @@ export const reqAddOrder = (orderInitDto) => ajax(BASE_URL+"/addOrder", {
 //管理员得到订单列表
 export const reqAdminGetOrderList = (page,pageSize) => ajax(BASE_URL+"/getAdminOrderList",{page,pageSize})
 
+//管理员得到订单列表（带搜索参数）
+export const reqAdminGetOrderListWithParams = (params) => ajax(BASE_URL+"/getAdminOrderList", params)
+
 //管理员得到订单的明细getOrderDto
 export const reqAdminGetOrderDetail = (id) => ajax(BASE_URL+"/getOrderDto",{id})
 
@@ -31,6 +34,9 @@ export const reqUserGetOrderList = (account,page,pageSize,orderStatus,beUserDele
 
 //修改订单状态modifyOrderStatus
 export const reqModOrderStatus = (id,orderStatus) => ajax(BASE_URL+"/modifyOrderStatus",{id,orderStatus})
+
+//确认支付
+export const reqConfirmPayment = (orderId) => ajax(BASE_URL+"/confirmPayment",{orderId},"POST")
 
 //得到时间筛选后的订单统计信息
 export const reqGetOrderStatistic = (beginDate,endDate) => ajax(BASE_URL+"/order/date",{beginDate,endDate})

@@ -2,41 +2,40 @@
   <div class="content">
     <div class="tab_content">
       <div class="first_tab">
-        <el-form :model="publish" :rules="rules" ref="publish" label-width="150px">
-          <el-form-item label="秒杀订单超过" prop="name">
-            <el-input v-model="publish.rank" class="input-width">
-              <template slot="append">分</template>
+        <el-form :model="orderSettings" :rules="rules" ref="orderSettings" label-width="150px">
+          <el-form-item label="秒杀订单超过" prop="spikePaymentTimeout">
+            <el-input v-model.number="orderSettings.spikePaymentTimeout" class="input-width" type="number">
+              <template slot="append">分钟</template>
             </el-input>
             <span class="note-margin">未付款，订单自动关闭</span>
           </el-form-item>
-          <el-form-item label="秒杀订单超过" prop="name">
-            <el-input v-model="publish.rank" class="input-width">
-              <template slot="append">分</template>
+
+          <el-form-item label="正常订单超过" prop="normalPaymentTimeout">
+            <el-input v-model.number="orderSettings.normalPaymentTimeout" class="input-width" type="number">
+              <template slot="append">分钟</template>
             </el-input>
             <span class="note-margin">未付款，订单自动关闭</span>
           </el-form-item>
-          <el-form-item label="正常订单超过" prop="name">
-            <el-input v-model="publish.rank" class="input-width">
-              <template slot="append">分</template>
+
+          <el-form-item label="发货超过" prop="deliveryTimeout">
+            <el-input v-model.number="orderSettings.deliveryTimeout" class="input-width" type="number">
+              <template slot="append">天</template>
             </el-input>
-            <span class="note-margin">未收货，订单自动关闭</span>
+            <span class="note-margin">未收货，订单自动确认收货</span>
           </el-form-item>
-          <el-form-item label="发货超过" prop="name">
-            <el-input v-model="publish.rank" class="input-width">
-              <template slot="append">分</template>
+
+          <el-form-item label="收货超过" prop="receiveTimeout">
+            <el-input v-model.number="orderSettings.receiveTimeout" class="input-width" type="number">
+              <template slot="append">天</template>
             </el-input>
             <span class="note-margin">自动结束交易</span>
           </el-form-item>
 
-          <el-form-item label="订单完成超过" prop="name">
-            <el-input v-model="publish.rank" class="input-width">
-              <template slot="append">分</template>
-            </el-input>
-            <span class="note-margin">自动五星好评</span>
-          </el-form-item>
+
+
           <el-form-item>
-            <el-button type="primary" @click="onSubmit('publish')">确认</el-button>
-            <el-button>取消</el-button>
+            <el-button type="primary" @click="onSubmit('orderSettings')" :loading="loading">确认</el-button>
+            <el-button @click="resetForm">取消</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -45,49 +44,40 @@
 </template>
 
 <script>
-    import  {reqAddPublish,reqGetPublish,reqModifyPublish} from "../../../api/publish";
-
     export default {
         name: "OrderSet",
-        props: {
-            value: Object,
-            isEdit: {
-                type: Boolean,
-                default: false
-            }
-        },
         data() {
-            let checkRank = (rule, value, callback) => {
-                if (!value) {
-                    return callback(new Error('排序不能为空'));
+            // 验证时间设置的函数
+            let checkTimeout = (rule, value, callback) => {
+                if (value === null || value === undefined || value === '') {
+                    return callback(new Error('时间设置不能为空'));
                 }
-                setTimeout(() => {
-                    if (!Number.isInteger(value)) {
-                        callback(new Error('请输入数字值'));
-                    } else {
-                        if (value < 0) {
-                            callback(new Error('数字值必须大于0'));
-                        } else {
-                            callback();
-                        }
-                    }
-                }, 1000);
+                if (!Number.isInteger(value) || value <= 0) {
+                    return callback(new Error('请输入大于0的整数'));
+                }
+                callback();
             };
+
             return {
-                editId: null,
-                publish: {
-                    id: 1,
-                    name: '',
-                    rank: 1,
-                    showPublish: false
+                loading: false,
+                orderSettings: {
+                    spikePaymentTimeout: 30,      // 秒杀订单付款超时（分钟）
+                    normalPaymentTimeout: 60,     // 正常订单付款超时（分钟）
+                    deliveryTimeout: 7,           // 发货超时（天）
+                    receiveTimeout: 7             // 收货超时（天）
                 },
                 rules: {
-                    name: [
-                        { required: true, message: '出版社名不能为空', trigger: 'blur' },
-                        { min: 3, max: 10, message: '出版社长度在 3 到 10 个字符', trigger: 'blur' }
+                    spikePaymentTimeout: [
+                        { validator: checkTimeout, trigger: 'blur' }
                     ],
-                    rank: [
-                        { validator: checkRank, trigger: 'blur' }
+                    normalPaymentTimeout: [
+                        { validator: checkTimeout, trigger: 'blur' }
+                    ],
+                    deliveryTimeout: [
+                        { validator: checkTimeout, trigger: 'blur' }
+                    ],
+                    receiveTimeout: [
+                        { validator: checkTimeout, trigger: 'blur' }
                     ]
                 }
             };
@@ -95,78 +85,94 @@
 
 
         methods: {
-            handleEditCreated(){
-                console.log("this.$route.query.id"+this.$route.query.id);
-                if(this.isEdit==true){
-                    console.log("哈哈哈哈");
-                    this.editId=this.$route.query.id;
-                    reqGetPublish(this.editId).then(response=>{
-                        this.publish = response.publish;
-                        console.log("编辑页面")
-                        console.log(response);
-                    }).catch(err=>{
-                        console.log(err);
-                    })
-                }
+            // 加载订单设置
+            loadOrderSettings() {
+                this.loading = true;
+                // 调用后端API获取配置
+                this.$http.get('/order/config/map').then(response => {
+                    if (response.data.code === 200) {
+                        const configMap = response.data.data;
+                        this.orderSettings = {
+                            spikePaymentTimeout: parseInt(configMap.spike_payment_timeout) || 30,
+                            normalPaymentTimeout: parseInt(configMap.normal_payment_timeout) || 60,
+                            deliveryTimeout: parseInt(configMap.delivery_timeout) || 7,
+                            receiveTimeout: parseInt(configMap.receive_timeout) || 7
+                        };
+                        console.log('加载订单设置成功:', this.orderSettings);
+                    } else {
+                        this.$message.error('加载订单设置失败：' + response.data.message);
+                    }
+                }).catch(error => {
+                    console.error('加载订单设置失败:', error);
+                    this.$message.error('加载订单设置失败');
+                }).finally(() => {
+                    this.loading = false;
+                });
             },
+
+            // 提交表单
             onSubmit(formName) {
-                this.$refs[formName].validate((valid)=>{
-                    // console.log(this.publish.isShow);
-                    if(valid){
-                        if(this.isEdit){
-                            this.modifyPublish();
-                        }else {
-                            this.addPublish();
-                        }
-                    }else {
-                        this.$message.error("添加出版社失败");
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.saveOrderSettings();
+                    } else {
+                        this.$message.error("请检查输入的设置值");
                         return false;
                     }
                 });
             },
 
-            addPublish(){
-                console.log("提交的值为："+this.publish.showPublish);
-                reqAddPublish(this.publish).then(response=>{
-                    console.log(this.publish);
-                    console.log("成功提交");
-                    console.log(response);
-                    this.$message.info("添加出版社成功");
-                }).catch(err=>{
-                    console.log(err);
-                    this.$message.error("添加出版社失败");
-                })
+            // 保存订单设置
+            saveOrderSettings() {
+                this.loading = true;
+
+                // 构建配置映射
+                const configMap = {
+                    spike_payment_timeout: this.orderSettings.spikePaymentTimeout.toString(),
+                    normal_payment_timeout: this.orderSettings.normalPaymentTimeout.toString(),
+                    delivery_timeout: this.orderSettings.deliveryTimeout.toString(),
+                    receive_timeout: this.orderSettings.receiveTimeout.toString()
+                };
+
+                // 调用后端API保存配置
+                this.$http.put('/order/config/batch', configMap).then(response => {
+                    if (response.data.code === 200) {
+                        this.$message.success("订单设置保存成功");
+                        console.log("订单设置已保存:", this.orderSettings);
+                    } else {
+                        this.$message.error("保存失败：" + response.data.message);
+                    }
+                }).catch(error => {
+                    console.error("保存订单设置失败:", error);
+                    this.$message.error("保存失败，请重试");
+                }).finally(() => {
+                    this.loading = false;
+                });
             },
 
-            modifyPublish(){
-                console.log("值为："+this.publish.show);
-                reqModifyPublish(this.publish).then(response=>{
-                    console.log(this.publish);
-                    console.log("成功提交");
-                    console.log(response);
-                    this.$message.info("修改出版社成功");
-                }).catch(err=>{
-                    console.log(err);
-                    this.$message.error("修改出版社出错");
-                })
-            },
-
-            proving(e){
-                let keyNum = window.event ? e.keyCode : e.which;//获取键盘吗
-                let keyChar = String.fromCharCode(keyNum);//获取键盘码对应的字符
-                if(keyNum==189 || keyNum==190 || keyNum==110 || keyNum==109){
-                    this.$message.warning("禁止输入小数以及负数");
-                    e.target.value='';
-                }
-            },
-
+            // 重置表单
+            resetForm() {
+                this.$confirm('确定要重置所有设置吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    // 重置为默认值
+                    this.orderSettings = {
+                        spikePaymentTimeout: 30,
+                        normalPaymentTimeout: 60,
+                        deliveryTimeout: 7,
+                        receiveTimeout: 7
+                    };
+                    this.$message.info('已重置为默认设置');
+                }).catch(() => {
+                    this.$message.info('已取消重置');
+                });
+            }
         },
         created() {
-            if(this.editId==false)
-                return;
-            else {
-                this.handleEditCreated();
-            }
+            // 页面加载时获取订单设置
+            this.loadOrderSettings();
         },
     }
 </script>
@@ -181,6 +187,8 @@
     width:800px;
     border: 1px #e8e8e8 solid;
     padding: 50px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   }
 
   .first_tab{
@@ -193,4 +201,17 @@
     width: 50%;
   }
 
+  .note-margin {
+    margin-left: 10px;
+    color: #909399;
+    font-size: 12px;
+  }
+
+  .el-form-item {
+    margin-bottom: 25px;
+  }
+
+  .el-button {
+    margin-right: 10px;
+  }
 </style>
