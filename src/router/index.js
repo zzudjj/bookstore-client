@@ -51,7 +51,7 @@ import Evaluate from "../components/UserHome/order/Evaluate";
 import UserOrder from "../components/UserHome/order/UserOrder";
 import ApplyService from "../components/UserHome/service/ApplyService";
 import Record from "../components/UserHome/service/Record";
-import UserCoupon from "../components/UserHome/home/UserCoupon";
+
 import BuyPage from "../pages/BuyPage/BuyPage";
 import OrderDetail from "../components/AdminHome/orderNav/OrderDetail";
 import Deliver from "../components/AdminHome/orderNav/Deliver";
@@ -299,9 +299,9 @@ export default new Router({
         {
           path: 'coupon',
           name: 'Coupon',
-          component: Coupon,
+          component: () => import('../pages/AdminHome/CouponManagement.vue'),
           meta: {
-            title: '优惠券',
+            title: '优惠券管理',
             url: '/admin/coupon',
             requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
           },
@@ -405,10 +405,16 @@ export default new Router({
           name: "Address",
           component: Address
         },
+
         {
-          path: 'coupon',
-          name: "UserCoupon",
-          component: UserCoupon
+          path: 'coupons',
+          name: "CouponCenter",
+          component: () => import('../pages/UserHome/CouponCenter.vue'),
+          meta: {
+            title: '优惠券中心',
+            requiresAuth: true,
+            requiresUser: true,
+          }
         },
         {
           path: 'mesNotice',
