@@ -2,8 +2,8 @@
   <div class="content">
     <el-carousel :interval="5000" arrow="always" height="300px">
       <el-carousel-item v-for="item in imgList" :key="item.id">
-        <router-link :to="{path: '/bookTopic',query:{id:item.id}}">
-        <img v-bind:src="item.cover" alt="图片">
+        <router-link :to="{path: '/topic',query:{id:item.id}}">
+        <img :src="getImg(item.cover)" alt="图片" @error="imgError($event)"/>
         </router-link>
       </el-carousel-item>
     </el-carousel>
@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import {getImageUrl} from "../../utils/imageUtils";
     export default {
         name: "Carousel",
         props:{
@@ -24,8 +25,13 @@
                 imgS: ["static/image/20.jpg",
                     "static/image/21.jpg",
                     "static/image/22.jpg",
-                    "static/image/23.jpg"]
+                    "static/image/23.jpg"],
+                fallback: '/static/image/topic/default_topic_cover.svg'
             }
+        },
+        methods:{
+          getImg(path){return getImageUrl(path);},
+          imgError(e){e.target.src=this.fallback;}
         },
         created() {
             // console.log("轮播图中this.imgList:"+this.imgList)

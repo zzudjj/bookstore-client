@@ -82,15 +82,20 @@
                 </div>
               </div>
 
-              <!-- 📞 客服信息 -->
-              <div class="customer-service">
-                <div class="service-icon">
-                  <i class="el-icon-phone"></i>
-                </div>
-                <div class="service-info">
-                  <h4>书店客服中心</h4>
-                  <p>预约电话 010-8430 857</p>
-                </div>
+              <!-- 📢 公告栏 -->
+              <div class="announcement-board">
+                <router-link to="/announcement" class="announcement-header">
+                  <i class="el-icon-bell"></i>
+                  <span>网站公告</span>
+                </router-link>
+                <ul class="announcement-list">
+                  <li v-for="item in announcements" :key="item.id" class="announcement-item">
+                    <router-link :to="{path: '/announcement/detail', query: {id: item.id}}" class="announcement-link">
+                      {{ item.title }}
+                      <span class="date">{{ formatDate(item.publishTime) }}</span>
+                    </router-link>
+                  </li>
+                </ul>
               </div>
             </aside>
 
@@ -100,14 +105,15 @@
 
               <!-- 🔥 快速入口 -->
               <div class="quick-entries">
-                <router-link
+                <a
                   v-for="entry in quickEntries"
                   :key="entry.name"
-                  :to="entry.path"
+                  :href="entry.path"
+                  @click="handleQuickEntryClick(entry, $event)"
                   class="quick-entry">
                   <i :class="entry.icon"></i>
                   <span>{{ entry.name }}</span>
-                </router-link>
+                </a>
               </div>
             </div>
 
@@ -116,7 +122,7 @@
       </section>
 
       <!-- 📚 图书展示区域 -->
-      <section class="books-showcase">
+      <section id="new-books-section" class="books-showcase">
         <div class="container">
 
           <!-- 🔥 最新出版 -->
@@ -134,7 +140,7 @@
           </div>
 
           <!-- ⚡ 今日秒杀 -->
-          <div class="showcase-section">
+          <div id="spike-section" class="showcase-section">
             <div class="section-title">
               <h2>
                 <i class="el-icon-lightning"></i>
@@ -151,30 +157,40 @@
       </section>
 
       <!-- 🎯 推荐图书区域 -->
-      <section class="recommended-books">
+      <section id="hot-books-section" class="recommended-books">
         <div class="container">
           <RecBookBox :list-sort="recommend"></RecBookBox>
         </div>
       </section>
 
       <!-- 📖 新品图书区域 -->
-      <section class="new-books">
+      <section id="category-section" class="new-books">
         <div class="container">
           <RecBookBox :list-sort="newProduct"></RecBookBox>
         </div>
       </section>
 
       <!-- 🏷️ 分类图书区域 -->
-      <section class="category-books">
+      <!-- <section class="category-books">
         <div class="container">
           <BookBox></BookBox>
         </div>
-      </section>
+      </section> -->
 
     </main>
 
     <!-- 🦶 页脚 -->
     <Footer></Footer>
+
+    <!-- 🔝 回到顶部按钮 -->
+    <transition name="back-to-top-fade">
+      <div
+        v-show="showBackToTop"
+        @click="scrollToTop"
+        class="back-to-top-btn">
+        <i class="el-icon-top"></i>
+      </div>
+    </transition>
 
   </div>
 </template>
@@ -188,7 +204,8 @@
     import BookBox from "../../components/Index/BookCard";
     import RecBookBox from "../../components/Index/RecommendedBooks";
     import {reqGetSortList} from "../../api/sort";
-    import {reqGetTopicList} from "../../api/bookTopic";
+    import {reqGetTopicList as reqGetTopicsV2} from "../../api/topic";
+    import {reqGetEnabledAnnouncementList} from "../../api/announcement";
 
     export default {
         name: "index",
@@ -203,12 +220,15 @@
                 currentSubMenu: null,
                 options: [],
 
+                // 回到顶部按钮控制
+                showBackToTop: false,
+
                 // 快速入口配置
                 quickEntries: [
-                  { name: '新书推荐', path: '/search?sort=new', icon: 'el-icon-star-on' },
-                  { name: '热门图书', path: '/search?sort=hot', icon: 'el-icon-lightning' },
-                  { name: '特价专区', path: '/spike', icon: 'el-icon-price-tag' },
-                  { name: '图书分类', path: '/search', icon: 'el-icon-collection' }
+                  { name: '最新出版', path: '#new-books-section', icon: 'el-icon-star-on', type: 'anchor' },
+                  { name: '精品推荐', path: '#hot-books-section', icon: 'el-icon-lightning', type: 'anchor' },
+                  { name: '今日秒杀', path: '#spike-section', icon: 'el-icon-price-tag', type: 'anchor' },
+                  { name: '新品推荐', path: '#category-section', icon: 'el-icon-collection', type: 'anchor' }
                 ]
             };
         },
@@ -223,13 +243,45 @@
                 this.currentSubMenu = null;
             },
 
+            // 处理快速入口点击
+            handleQuickEntryClick(entry, event) {
+                if (entry.type === 'anchor') {
+                    event.preventDefault();
+                    const targetId = entry.path.substring(1); // 移除 # 号
+                    const targetElement = document.getElementById(targetId);
+
+                    if (targetElement) {
+                        // 平滑滚动到目标区域
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+                // 如果不是锚点类型，则正常跳转（保留原有功能）
+            },
+
+            // 回到顶部
+            scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            },
+
+            // 监听滚动事件
+            handleScroll() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+                this.showBackToTop = scrollTop > 300; // 滚动超过300px时显示按钮
+            },
+
             //得到书单列表
             GetTopic(page,pageSize){
                 this.loading=false;
-                reqGetTopicList(page,pageSize).then(response=>{
+                reqGetTopicsV2(page,pageSize).then(response=>{
                     if(response.code==200){
                         this.bookTopicList = [];
-                        let list = response.bookTopicList;
+                        let list = response.topicList;
                         for(let i=0;i<list.length;i++){
                             this.bookTopicList.push({cover:list[i].cover,id:list[i].id});
                         }
@@ -304,6 +356,20 @@
                 });
             },
 
+            // 获取公告列表
+            getAnnouncements() {
+                reqGetEnabledAnnouncementList().then(res => {
+                    if (res.code === 200) {
+                        this.announcements = (res.announcementList || []).slice(0,5);
+                    }
+                });
+            },
+
+            // 格式化日期
+            formatDate(timeStr) {
+                if (!timeStr) return '';
+                return timeStr.substr(0, 10);
+            },
         },
         computed:{
             optionsList(){
@@ -319,6 +385,12 @@
         mounted(){
             // this.getSortList();
             this.getSortList();
+            // 添加滚动监听
+            window.addEventListener('scroll', this.handleScroll);
+        },
+        beforeDestroy() {
+            // 移除滚动监听
+            window.removeEventListener('scroll', this.handleScroll);
         },
         created() {
             this.GetTopic(1,5);
@@ -366,7 +438,7 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow: visible; /* 允许子元素溢出，解决悬浮面板被遮挡问题 */
   flex-shrink: 0;
 }
 
@@ -487,40 +559,58 @@
   color: white;
 }
 
-/* 📞 客服信息 */
-.customer-service {
+/* 📢 公告栏 */
+.announcement-board {
   background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
   padding: 20px;
   margin: 20px;
   border-radius: 12px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 15px;
 }
 
-.service-icon {
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
+.announcement-header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.announcement-header i {
   color: white;
   font-size: 24px;
 }
 
-.service-info h4 {
-  margin: 0 0 5px 0;
+.announcement-header span {
   color: white;
   font-size: 16px;
-  font-weight: 600;
 }
 
-.service-info p {
+.announcement-list {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
+}
+
+.announcement-item {
+  margin-bottom: 10px;
+}
+
+.announcement-link {
+  color: white;
+  text-decoration: none;
   font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.announcement-link:hover {
+  color: #667eea;
+}
+
+.date {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
 }
 
 /* 🎠 轮播图区域 */
@@ -623,21 +713,112 @@
 
 /* 🎯 推荐图书区域 */
 .recommended-books {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 60px 0;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.recommended-books::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="20" cy="80" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+}
+
+.recommended-books .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* 推荐图书区域的标题样式 */
+.recommended-books .section-title h2 {
+  color: white;
+}
+
+.recommended-books .section-title h2 i {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.recommended-books .view-more {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.recommended-books .view-more:hover {
   color: white;
 }
 
 /* 📖 新品图书区域 */
 .new-books {
-  background: white;
-  padding: 60px 0;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.new-books::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.2)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+  opacity: 0.4;
+}
+
+.new-books .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* 新品图书区域的标题样式 */
+.new-books .section-title h2 {
+  color: #2c3e50;
+}
+
+.new-books .section-title h2 i {
+  color: #667eea;
 }
 
 /* 🏷️ 分类图书区域 */
 .category-books {
   background: #f8f9fa;
   padding: 60px 0;
+}
+
+/* 🔝 回到顶部按钮 */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.back-to-top-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.back-to-top-btn i {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 /* 🎬 过渡动画 */
@@ -654,6 +835,22 @@
 .submenu-fade-leave-to {
   opacity: 0;
   transform: translateX(10px);
+}
+
+/* 回到顶部按钮过渡动画 */
+.back-to-top-fade-enter-active,
+.back-to-top-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.back-to-top-fade-enter {
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+}
+
+.back-to-top-fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
 }
 
 /* 📱 响应式设计 */
@@ -716,6 +913,18 @@
   }
 
   .section-title h2 {
+    font-size: 18px;
+  }
+
+  /* 移动端回到顶部按钮调整 */
+  .back-to-top-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+  }
+
+  .back-to-top-btn i {
     font-size: 18px;
   }
 }
