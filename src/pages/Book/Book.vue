@@ -297,35 +297,145 @@
                       </div>
                     </div>
 
-                    <div class="reviews-list">
-                      <div class="review-item" v-for="review in mockReviews" :key="review.id">
-                        <div class="review-header">
-                          <div class="reviewer-info">
-                            <el-avatar :size="40" :src="review.avatar">
-                              <i class="el-icon-user-solid"></i>
-                            </el-avatar>
-                            <div class="reviewer-details">
-                              <div class="reviewer-name">{{ review.username }}</div>
-                              <div class="review-date">{{ review.date }}</div>
+                    <!-- 一级评论输入框 -->
+                    <div class="add-comment" style="margin-bottom: 20px;">
+                      <el-input
+                        type="textarea"
+                        v-model="newCommentContent"
+                        placeholder="说点什么吧…"
+                        rows="3"
+                        maxlength="300"
+                        show-word-limit
+                      ></el-input>
+                      <el-button type="primary" @click="submitComment" :disabled="!newCommentContent.trim()" style="margin-top: 8px;">发表评论</el-button>
+                    </div>
+
+                    <!-- 评论列表 -->
+                    <div class="reviews-list" v-loading="loadingComments">
+                      <div v-if="comments.length === 0" class="no-comments">暂无评论</div>
+                      <div class="review-item" v-for="review in comments" :key="review.id" style="display: flex; flex-direction: column; padding: 16px 0; border-bottom: 1px solid #f0f0f0;">
+                        <!-- 第一行：头像、主内容、点赞按钮 -->
+                        <div style="display: flex; align-items: flex-start; width: 100%;">
+                          <!-- 第一块：头像 -->
+                          <div style="flex: 0 0 44px; display: flex; align-items: flex-start; justify-content: center; margin-left: 10px;">
+                            <img
+                              :src="getAvatarUrl(review.userImgUrl, review.userName)"
+                              alt="头像"
+                              class="review-avatar"
+                              style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"
+                            />
+                          </div>
+                          <!-- 第二块：主内容区 -->
+                          <div style="flex: 1; min-width: 0; margin-left: 12px; margin-right: 12px; display: flex; flex-direction: column;">
+                            <div style="font-weight: 600; color: #888; font-size: 15px; line-height: 1.2;">{{ review.userName || '匿名用户' }}</div>
+                            <div style="margin: 4px 0 0 0; color: #333; font-size: 15px; word-break: break-all;">{{ review.content }}</div>
+                            <div style="display: flex; align-items: center; margin-top: 6px;">
+                              <el-button type="text" @click="showReplyInput(review.id)" style="padding: 0 8px; font-size: 14px; color: #1976d2;">回复</el-button>
+                              <span style="margin: 0 8px; color: #e0e0e0;">|</span>
+                              <span v-if="review.replies && review.replies.length" class="expand-reply-link" @click="toggleReplyList(review.id)" style="color: #1976d2; cursor: pointer; font-size: 14px;">
+                                <template v-if="!replyListVisible[review.id]">
+                                  展开{{ review.replies.length }}条回复
+                                </template>
+                                <template v-else>
+                                  收起回复
+                                </template>
+                              </span>
                             </div>
                           </div>
-                          <el-rate v-model="review.rating" disabled size="small"></el-rate>
+                          <!-- 第三块：点赞按钮，主内容区垂直居中 -->
+                          <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; min-width: 60px; margin-right: 10px;">
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                              <el-button
+                                type="text"
+                                class="like-btn"
+                                @click="review.liked ? unlikeComment(review.id) : likeComment(review.id)"
+                                :disabled="!$store.getters.getUser || !$store.getters.getUser.account"
+                                style="padding: 0; margin: 0;">
+                                <i
+                                  :class="review.liked ? 'el-icon-star-on' : 'el-icon-star-off'"
+                                  :style="{
+                                    color: review.liked ? '#e74c3c' : '#bbb',
+                                    fontSize: '20px',
+                                    verticalAlign: 'middle'
+                                  }"
+                                ></i>
+                              </el-button>
+                              <span style="margin: 0; color: #888; font-size: 14px; text-align: center;">{{ review.likeCount }}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div class="review-content">
-                          {{ review.content }}
-                        </div>
-                        <div class="review-actions">
-                          <el-button type="text" size="small">
-                            <i class="el-icon-thumb"></i>
-                            有用 ({{ review.helpful }})
-                          </el-button>
-                          <el-button type="text" size="small">
-                            <i class="el-icon-chat-dot-round"></i>
-                            回复
-                          </el-button>
+                        <!-- 第二行：回复输入框和二级评论列表 -->
+                        <div style="width: 100%;">
+                          <div v-if="replyInputVisible[review.id]" class="reply-input" style="margin: 8px 0 8px 66px;">
+                            <el-input
+                              type="textarea"
+                              v-model="replyContent[review.id]"
+                              placeholder="回复内容…"
+                              rows="2"
+                              maxlength="200"
+                              show-word-limit
+                            ></el-input>
+                            <el-button type="primary" @click="submitReply(review.id)" :disabled="!replyContent[review.id] || !replyContent[review.id].trim()" style="margin-top: 4px;">提交</el-button>
+                            <el-button @click="hideReplyInput(review.id)" style="margin-top: 4px;">取消</el-button>
+                          </div>
+                          <div
+                            class="reply-list"
+                            v-if="review.replies && review.replies.length && replyListVisible[review.id]"
+                            style="margin-left: 66px; border-left: 2px solid #f0f0f0; padding-left: 12px; margin-top: 4px;"
+                          >
+                            <div class="reply-item" v-for="reply in review.replies" :key="reply.id" style="margin-bottom: 8px; display: flex; flex-direction: row; align-items: flex-start;">
+                              <!-- 第一块：头像 -->
+                              <div style="flex: 0 0 32px; display: flex; align-items: flex-start; justify-content: center; margin-left: 10px;">
+                                <img
+                                  :src="getAvatarUrl(reply.userImgUrl, reply.userName)"
+                                  alt="头像"
+                                  class="reply-avatar"
+                                  style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;"
+                                />
+                              </div>
+                              <!-- 第二块：用户名、内容、时间 -->
+                              <div style="flex: 1; min-width: 0; margin-left: 8px; margin-right: 8px; display: flex; flex-direction: column;">
+                                <div style="font-weight: 600; color: #888; font-size: 14px; line-height: 1.2;">{{ reply.userName || '匿名用户' }}</div>
+                                <div style="margin: 2px 0 0 0; color: #333; font-size: 14px; word-break: break-all;">{{ reply.content }}</div>
+                                <div style="color: #999; font-size: 12px; margin-top: 2px;">{{ formatTime(reply.createTime) }}</div>
+                              </div>
+                              <!-- 第三块：点赞按钮，主内容区垂直居中 -->
+                              <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; min-width: 48px; margin-right: 10px;">
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                  <el-button
+                                    type="text"
+                                    class="like-btn"
+                                    @click="reply.liked ? unlikeComment(reply.id) : likeComment(reply.id)"
+                                    :disabled="!$store.getters.getUser || !$store.getters.getUser.account"
+                                    style="padding: 0; margin: 0;">
+                                    <i
+                                      :class="reply.liked ? 'el-icon-star-on' : 'el-icon-star-off'"
+                                      :style="{
+                                        color: reply.liked ? '#e74c3c' : '#bbb',
+                                        fontSize: '18px',
+                                        verticalAlign: 'middle'
+                                      }"
+                                    ></i>
+                                  </el-button>
+                                  <span style="margin: 0; color: #888; font-size: 13px; text-align: center;">{{ reply.likeCount }}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <!-- 分页 -->
+                    <el-pagination
+                      v-if="commentTotal > commentPageSize"
+                      background
+                      layout="prev, pager, next"
+                      :total="commentTotal"
+                      :page-size="commentPageSize"
+                      :current-page="commentPage"
+                      @current-change="handlePageChange"
+                      style="margin-top: 20px; text-align: right;"
+                    />
                   </div>
                 </el-tab-pane>
 
@@ -391,13 +501,14 @@
 
 <script>
     import Nav from "../../components/Common/BaseNavigation";
-
     import Footer from "../../components/Common/BaseFooter";
     import CarouselBtn from "../../components/Index/CarouselBtn";
     import {reqGetBook} from "../../api/book";
     import {reqGetSortList} from "../../api/sort";
     import {reqAddCart} from "../../api/cart";
+    import { reqGetComments, reqLikeComment, reqUnlikeComment, reqAddComment } from "../../api/comment";
     import 'github-markdown-css'
+    import { getAvatarUrl } from '@/utils/imageUtils';
     export default {
         name: "Book",
         components: { CarouselBtn, Nav, Footer },
@@ -428,40 +539,20 @@
                 activeName: 'description',
                 purchaseQuantity: 1,
                 overallRating: 4.8,
-
-                // 模拟评价数据
-                mockReviews: [
-                    {
-                        id: 1,
-                        username: '读书爱好者',
-                        avatar: '',
-                        rating: 5,
-                        date: '2024-06-20',
-                        content: '这本书写得非常好，内容丰富，值得推荐！包装也很精美，物流很快。',
-                        helpful: 12
-                    },
-                    {
-                        id: 2,
-                        username: '书虫小王',
-                        avatar: '',
-                        rating: 4,
-                        date: '2024-06-18',
-                        content: '整体不错，内容很有深度，就是纸张质量一般。',
-                        helpful: 8
-                    },
-                    {
-                        id: 3,
-                        username: '文学青年',
-                        avatar: '',
-                        rating: 5,
-                        date: '2024-06-15',
-                        content: '非常棒的一本书，作者的文笔很好，故事情节引人入胜。',
-                        helpful: 15
-                    }
-                ]
+                // 评论相关
+                comments: [],
+                commentPage: 1,
+                commentPageSize: 10,
+                commentTotal: 0,
+                loadingComments: false,
+                newCommentContent: "",
+                replyInputVisible: {}, // { [commentId]: true/false }
+                replyContent: {},      // { [commentId]: "xxx" }
+                replyListVisible: {}, // 控制每个一级评论的回复是否展开
             };
         },
         methods: {
+            getAvatarUrl,
             // 标签页切换
             handleClick() {
                 // 处理标签页切换逻辑
@@ -584,7 +675,112 @@
 
             addBookToCart() {
                 this.addToCart();
-            }
+            },
+
+            // 评论相关
+            fetchComments() {
+                this.loadingComments = true;
+                reqGetComments(this.bookId, this.commentPage, this.commentPageSize)
+                  .then(res => {
+                    if (res.code === 200) {
+                      this.comments = res.comments;
+                      this.commentTotal = res.total;
+                    }
+                  })
+                  .catch(() => {
+                    this.$message.error('获取评论失败');
+                  })
+                  .finally(() => {
+                    this.loadingComments = false;
+                  });
+            },
+            handlePageChange(page) {
+                this.commentPage = page;
+                this.fetchComments();
+            },
+            formatTime(time) {
+                if (!time) return '';
+                return new Date(time).toLocaleString();
+            },
+            likeComment(commentId) {
+                const token = localStorage.getItem('token');
+                reqLikeComment(commentId, token)
+                  .then(res => {
+                    if (res.code === 200) {
+                      this.fetchComments();
+                    } else {
+                      this.$message.warning(res.message);
+                    }
+                  })
+                  .catch(() => {
+                    this.$message.error('点赞失败');
+                  });
+            },
+            unlikeComment(commentId) {
+                const token = localStorage.getItem('token');
+                reqUnlikeComment(commentId, token)
+                  .then(res => {
+                    if (res.code === 200) {
+                      this.fetchComments();
+                    } else {
+                      this.$message.warning(res.message);
+                    }
+                  })
+                  .catch(() => {
+                    this.$message.error('取消点赞失败');
+                  });
+            },
+            // 一级评论提交
+            submitComment() {
+                if (!this.newCommentContent.trim()) return;
+                reqAddComment({
+                    bookId: this.bookId,
+                    content: this.newCommentContent,
+                    parentId: null
+                }).then(res => {
+                    if (res.code === 200) {
+                        this.$message.success("评论成功！");
+                        this.newCommentContent = "";
+                        this.fetchComments();
+                    } else {
+                        this.$message.error(res.message || "评论失败");
+                    }
+                }).catch(() => {
+                    this.$message.error("评论失败");
+                });
+            },
+            // 显示二级评论输入框
+            showReplyInput(commentId) {
+                this.$set(this.replyInputVisible, commentId, true);
+            },
+            // 隐藏二级评论输入框
+            hideReplyInput(commentId) {
+                this.$set(this.replyInputVisible, commentId, false);
+                this.$set(this.replyContent, commentId, "");
+            },
+            // 二级评论提交
+            submitReply(parentId) {
+                const content = this.replyContent[parentId];
+                if (!content || !content.trim()) return;
+                reqAddComment({
+                    bookId: this.bookId,
+                    content: content,
+                    parentId: parentId
+                }).then(res => {
+                    if (res.code === 200) {
+                        this.$message.success("回复成功！");
+                        this.hideReplyInput(parentId);
+                        this.fetchComments();
+                    } else {
+                        this.$message.error(res.message || "回复失败");
+                    }
+                }).catch(() => {
+                    this.$message.error("回复失败");
+                });
+            },
+            toggleReplyList(commentId) {
+                this.$set(this.replyListVisible, commentId, !this.replyListVisible[commentId]);
+            },
         },
 
         created() {
@@ -592,6 +788,7 @@
             if (this.bookId) {
                 this.getBook(this.bookId);
                 this.getSortList();
+                this.fetchComments(); // 页面加载时获取评论
             } else {
                 this.$message({
                     message: "缺少图书ID参数",

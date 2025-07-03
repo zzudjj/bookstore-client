@@ -28,9 +28,9 @@
           <aside class="user-sidebar">
             <div class="user-profile-card">
               <div class="profile-avatar">
-                <el-avatar :size="60" :src="userInfo.avatar" class="avatar">
-                  <i class="el-icon-user-solid"></i>
-                </el-avatar>
+                <div class="avatar-cover">
+                  <img :src="getAvatarUrl(userInfo.imgUrl)" alt="avatar" />
+                </div>
               </div>
               <div class="profile-info">
                 <h3 class="username">{{ userInfo.name || '用户' }}</h3>
@@ -183,6 +183,7 @@
 <script>
 import Nav from "../../components/Common/BaseNavigation";
 import Footer from "../../components/Common/BaseFooter";
+import { getAvatarUrl } from "../../utils/imageUtils";
 
 export default {
   name: "UserHome",
@@ -190,44 +191,37 @@ export default {
 
   data() {
     return {
-      userInfo: {
-        name: '',
-        avatar: '',
-        level: '普通会员'
-      }
+      // userInfo: {   // 删除data中的userInfo
+      //   name: '',
+      //   imgUrl: '',
+      //   level: '普通会员'
+      // }
     };
   },
 
   computed: {
-    // 获取用户信息
-    currentUser() {
-      return this.$store.getters.getUser || {};
+    // 获取用户信息，保证响应式
+    userInfo() {
+      const user = this.$store.getters.getUser || {};
+      return {
+        name: user.name || user.account || '用户',
+        imgUrl: user.imgUrl || user.avatar || '',
+        level: user.level || '普通会员'
+      };
     }
   },
 
   methods: {
-    // 初始化用户信息
-    initUserInfo() {
-      const user = this.currentUser;
-      if (user) {
-        this.userInfo = {
-          name: user.name || user.account || '用户',
-          avatar: user.avatar || '',
-          level: user.level || '普通会员'
-        };
-      }
-    }
+    getAvatarUrl
+    // initUserInfo方法可以删除或保留（已无必要）
   },
 
   created() {
-    this.initUserInfo();
+    // this.initUserInfo(); // 不再需要
   },
 
   watch: {
-    // 监听路由变化，确保用户信息更新
-    '$store.getters.getUser'() {
-      this.initUserInfo();
-    }
+    // 不再需要watch
   }
 }
 </script>
@@ -304,9 +298,20 @@ export default {
   margin-bottom: 15px;
 }
 
-.avatar {
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.avatar-cover {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-block;
+  background: #eee;
+}
+
+.avatar-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .username {

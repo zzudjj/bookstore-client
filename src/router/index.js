@@ -386,6 +386,11 @@ export default new Router({
             url: '/admin/subTopicList',
             requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
           },
+        },
+        {
+          path: '/admin/commentList',
+          name: 'AdminCommentList',
+          component: () => import('../pages/AdminHome/CommentList.vue')
         }
       ]
     },

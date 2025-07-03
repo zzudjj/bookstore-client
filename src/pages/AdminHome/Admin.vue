@@ -126,6 +126,18 @@
             </el-menu-item>
           </el-submenu>
 
+          <!-- 💬 评论管理 -->
+          <el-submenu index="comment" class="menu-submenu">
+            <template slot="title">
+              <i class="el-icon-chat-dot-round menu-icon"></i>
+              <span class="menu-title">评论管理</span>
+            </template>
+            <el-menu-item index="/admin/commentList" class="submenu-item">
+              <i class="el-icon-chat-dot-round"></i>
+              <span>查看评论</span>
+            </el-menu-item>
+          </el-submenu>
+
         </el-menu>
 
         <!-- 🔧 侧边栏底部 -->
