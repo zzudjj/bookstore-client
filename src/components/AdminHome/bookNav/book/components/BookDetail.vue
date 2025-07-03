@@ -67,17 +67,19 @@
           <el-form-item label="图书相册">
             <el-upload
               ref="book"
-              action="/api/uploadBookImg"
+              action="/uploadBookImg"
               list-type="picture-card"
               :on-preview="handlePictureCardPreview"
               :on-success="handleSuccess"
+              :on-error="handleError"
               :on-remove="handleRemove"
+              :on-change="handleChange"
               :limit="5"
-              :data="book"
+              :data="uploadData"
               :file-list="fileList"
               :headers="myHeader"
+              :auto-upload="false"
             >
-<!--              :auto-upload="false"-->
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-dialog :visible.sync="dialogVisible">
@@ -225,6 +227,15 @@
             };
         },
 
+        computed: {
+            // 上传时传递给后端的数据
+            uploadData() {
+                return {
+                    isbn: this.book.isbn
+                };
+            }
+        },
+
         methods: {
 
             initMyHeader(){
@@ -275,19 +286,26 @@
             onSubmit() {
                 if(!this.isEdit){
                     console.log(this.fileList);
-                    // this.$refs.book.submit();
+                    // 先添加图书信息
                     reqAddBook(this.book).then(response=>{
                         if(response.code==200){
                             this.$message({
                                 type: 'success',
                                 message: response.message
-                            })
+                            });
+                            // 图书添加成功后，上传图片
+                            this.uploadImages();
                         }else{
                             this.$message({
                                 type: 'warning',
                                 message: response.message
                             })
                         }
+                    }).catch(err=>{
+                        this.$message({
+                            type: 'error',
+                            message: "添加图书失败"
+                        })
                     })
                 }else {
                     reqModifyBook(this.book).then(response=>{
@@ -295,7 +313,9 @@
                             this.$message({
                                 type: 'success',
                                 message: response.message
-                            })
+                            });
+                            // 修改图书成功后，上传图片
+                            this.uploadImages();
                         }else{
                             this.$message({
                                 type: 'warning',
@@ -309,6 +329,79 @@
                         })
                     })
                 }
+            },
+
+            // 上传图片的方法
+            uploadImages() {
+                console.log('检查文件列表...');
+                console.log('fileList:', this.fileList);
+
+                const fileList = this.fileList || [];
+                console.log('fileList.length:', fileList.length);
+
+                // 检查待上传的文件（状态为ready的文件）
+                const readyFiles = fileList.filter(file => file.status === 'ready');
+                console.log('待上传文件数量:', readyFiles.length);
+                console.log('待上传文件:', readyFiles);
+
+                if (readyFiles.length > 0) {
+                    console.log('开始手动上传图片，共' + readyFiles.length + '张');
+                    // 手动上传每个文件
+                    this.uploadFilesManually(readyFiles);
+                } else {
+                    console.log('没有需要上传的图片');
+                    this.$message({
+                        type: 'info',
+                        message: '没有选择图片文件'
+                    });
+                }
+            },
+
+            // 手动上传文件
+            uploadFilesManually(files) {
+                console.log('准备上传的文件:', files);
+
+                // 逐个上传文件
+                let uploadPromises = [];
+
+                files.forEach((fileItem, index) => {
+                    if (fileItem.raw) {
+                        const formData = new FormData();
+                        formData.append('file', fileItem.raw);
+
+                        // 添加其他必要的数据
+                        Object.keys(this.uploadData).forEach(key => {
+                            formData.append(key, this.uploadData[key]);
+                        });
+
+                        console.log(`开始上传第${index + 1}个文件:`, fileItem.name);
+
+                        // 使用axios直接上传
+                        const uploadPromise = this.$http.post('/uploadBookImg', formData, {
+                            headers: {
+                                ...this.myHeader,
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        });
+
+                        uploadPromises.push(uploadPromise);
+                    }
+                });
+
+                // 等待所有文件上传完成
+                Promise.all(uploadPromises).then(responses => {
+                    console.log('所有文件上传成功:', responses);
+                    responses.forEach((response, index) => {
+                        this.handleSuccess(response.data, files[index], this.fileList);
+                    });
+                    this.$message({
+                        type: 'success',
+                        message: `成功上传${responses.length}张图片`
+                    });
+                }).catch(error => {
+                    console.error('上传失败:', error);
+                    this.handleError(error, files[0], this.fileList);
+                });
             },
 
             //获取图书的分类值
@@ -347,7 +440,35 @@
                 this.dialogVisible = true;
             },
             handleSuccess(response, file, fileList){
-                console.log(response);
+                console.log('图片上传响应:', response);
+                if(response.code === 200) {
+                    this.$message({
+                        type: 'success',
+                        message: '图片上传成功'
+                    });
+                } else {
+                    this.$message({
+                        type: 'error',
+                        message: response.message || '图片上传失败'
+                    });
+                }
+            },
+
+            // 图片上传失败处理
+            handleError(err, file, fileList) {
+                console.error('图片上传失败:', err);
+                this.$message({
+                    type: 'error',
+                    message: '图片上传失败，请检查网络连接或联系管理员'
+                });
+            },
+
+            // 文件选择变化处理
+            handleChange(file, fileList) {
+                console.log('文件选择变化:', file);
+                console.log('当前文件列表:', fileList);
+                console.log('文件状态:', file.status);
+                this.fileList = fileList;
             },
 
 

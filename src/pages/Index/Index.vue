@@ -165,11 +165,11 @@
       </section>
 
       <!-- 🏷️ 分类图书区域 -->
-      <section class="category-books">
+      <!-- <section class="category-books">
         <div class="container">
           <BookBox></BookBox>
         </div>
-      </section>
+      </section> -->
 
     </main>
 
@@ -623,15 +623,50 @@
 
 /* 🎯 推荐图书区域 */
 .recommended-books {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 60px 0;
-  color: white;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.recommended-books::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="20" cy="80" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+}
+
+.recommended-books .container {
+  position: relative;
+  z-index: 1;
 }
 
 /* 📖 新品图书区域 */
 .new-books {
-  background: white;
-  padding: 60px 0;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.new-books::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.2)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+  opacity: 0.4;
+}
+
+.new-books .container {
+  position: relative;
+  z-index: 1;
 }
 
 /* 🏷️ 分类图书区域 */
