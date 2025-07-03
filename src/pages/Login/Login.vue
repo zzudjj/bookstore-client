@@ -209,24 +209,40 @@ export default {
   methods: {
     // 切换密码显示状态
     togglePassword() {
+      console.log('切换密码显示状态:', !this.showPassword);
       this.showPassword = !this.showPassword;
     },
 
     // 登录方法
     login(formName) {
+      console.group('登录流程开始');
+      console.log('表单验证开始:', formName);
+      
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          console.log('表单验证通过，准备发送登录请求');
           this.loginLoading = true;
+          console.log('登录请求参数:', {
+            account: this.ruleForm.account,
+            password: this.ruleForm.password
+          });
 
           reqLogin({
             account: this.ruleForm.account,
             password: this.ruleForm.password
           }).then((response) => {
+            console.log('登录响应:', {
+              status: response.status,
+              data: response.data,
+              headers: response.headers
+            });
             this.loginLoading = false;
 
             if (response.data.code == 200) {
               const jwt = response.headers['authorization'];
               const user = response.data.user;
+              console.log('登录成功，用户信息:', user);
+              console.log('JWT Token:', jwt ? '已获取' : '未获取');
 
               // 保存用户信息和token
               this.$store.commit("SET_TOKEN", jwt);
@@ -234,8 +250,10 @@ export default {
 
               // 如果选择记住我，保存到本地存储
               if (this.rememberMe) {
+                console.log('记住账号:', this.ruleForm.account);
                 localStorage.setItem('rememberedAccount', this.ruleForm.account);
               } else {
+                console.log('不记住账号，清除本地存储');
                 localStorage.removeItem('rememberedAccount');
               }
 

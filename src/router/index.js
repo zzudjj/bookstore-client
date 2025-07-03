@@ -22,7 +22,7 @@ import MenuList from "../components/AdminHome/authority/MenuList";
 import RolesList from "../components/AdminHome/authority/RolesList";
 import UserList from "../components/AdminHome/authority/UserList";
 import AdminHome from "../components/AdminHome/AdminHome";
-import BookTopicSet from "../components/AdminHome/bookNav/topic/BookTopicSet";
+import TopicManage from "../components/AdminHome/bookNav/topic/TopicManage";
 import Search from "../pages/Search/Search";
 import Upload3 from "../components/Upload3";
 import Cart from "../pages/Cart/Cart";
@@ -51,11 +51,13 @@ import Evaluate from "../components/UserHome/order/Evaluate";
 import UserOrder from "../components/UserHome/order/UserOrder";
 import ApplyService from "../components/UserHome/service/ApplyService";
 import Record from "../components/UserHome/service/Record";
-import UserCoupon from "../components/UserHome/home/UserCoupon";
+
 import BuyPage from "../pages/BuyPage/BuyPage";
 import OrderDetail from "../components/AdminHome/orderNav/OrderDetail";
 import Deliver from "../components/AdminHome/orderNav/Deliver";
 import UserOrderDetail from "../components/UserHome/order/UserOrderDetail";
+import TopicsList from "../pages/Topic/TopicsList";
+import TopicDetail from "../pages/Topic/TopicDetail";
 
 Vue.use(Router)
 
@@ -289,7 +291,7 @@ export default new Router({
         {
           path: 'bookTopicSet',
           name: 'BookTopicSet',
-          component: BookTopicSet,
+          component: TopicManage,
           meta: {
             title: '图单专题',
             url: '/admin/bookTopicSet',
@@ -299,9 +301,9 @@ export default new Router({
         {
           path: 'coupon',
           name: 'Coupon',
-          component: Coupon,
+          component: () => import('../pages/AdminHome/CouponManagement.vue'),
           meta: {
-            title: '优惠券',
+            title: '优惠券管理',
             url: '/admin/coupon',
             requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
           },
@@ -391,7 +393,27 @@ export default new Router({
           path: '/admin/commentList',
           name: 'AdminCommentList',
           component: () => import('../pages/AdminHome/CommentList.vue')
-        }
+        },
+        {
+          path: 'announcementManage',
+          name: 'AnnouncementManage',
+          component: () => import('../components/AdminHome/content/announcement/AnnouncementManage'),
+          meta: {
+            title: '公告管理',
+            url: '/admin/announcementManage',
+            requiresAuth: true
+          }
+        },
+        {
+          path: 'aboutManage',
+          name: 'AboutManage',
+          component: () => import('../components/AdminHome/content/about/AboutManage'),
+          meta: {
+            title: '网站介绍',
+            url: '/admin/aboutManage',
+            requiresAuth: true
+          }
+        },
       ]
     },
     {
@@ -410,10 +432,16 @@ export default new Router({
           name: "Address",
           component: Address
         },
+
         {
-          path: 'coupon',
-          name: "UserCoupon",
-          component: UserCoupon
+          path: 'coupons',
+          name: "CouponCenter",
+          component: () => import('../pages/UserHome/CouponCenter.vue'),
+          meta: {
+            title: '优惠券中心',
+            requiresAuth: true,
+            requiresUser: true,
+          }
         },
         {
           path: 'mesNotice',
@@ -465,7 +493,12 @@ export default new Router({
     {
       path: '/bookTopic',
       name: 'BookTopic',
-      component: BookTopic
+      component: BookTopic,
+      meta: {
+        title: '书单列表',
+        url: '/admin/bookTopic',
+        requiresAuth: true,
+      },
     },
     {
       path: '/book',
@@ -510,6 +543,34 @@ export default new Router({
         requiresUser: true,
       },
     },
-
+    {
+      path: '/announcement',
+      name: 'AnnouncementPage',
+      component: () => import('../pages/Announcement/Announcement')
+    },
+    {
+      path: '/about',
+      name: 'AboutPage',
+      component: () => import('../pages/About/About')
+    },
+    {
+      path: '/announcement/detail',
+      name: 'AnnouncementDetail',
+      component: () => import('../pages/Announcement/AnnouncementDetail')
+    },
+    {
+      path: '/topics',
+      name: 'TopicsList',
+      component: TopicsList
+    },
+    {
+      path: '/topic',
+      name: 'TopicDetail',
+      component: TopicDetail
+    },
+    {
+      path: '/bookTopic',
+      redirect: to => ({path:'/topic',query: to.query})
+    },
   ]
 })

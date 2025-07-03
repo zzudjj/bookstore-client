@@ -1,6 +1,6 @@
 import ajax from "./ajax";
 
-const BASE_URL = '/book'  // 移除重复的/api前缀
+const BASE_URL = '/book'  // 正确的API路径
 
 //添加出版社newProduct: true,
 //                 recommend
@@ -64,3 +64,31 @@ export const reqGetSortBookList = (sortId)=>ajax(BASE_URL+'/getSortBookList',{so
 
 //getSortBookListBySort
 export const reqGetBookListBySort = (sortId,page,pageSize)=>ajax(BASE_URL+'/getBookListBySort',{sortId,page, pageSize})
+
+
+// 搜索图书 - 标准接口（使用POST避免中文编码问题）
+export const reqSearchBooks = (keyword, page = 1, pageSize = 10) => {
+  return ajax(BASE_URL + '/searchBooks', {
+    keyword: keyword,
+    page: page,
+    pageSize: pageSize
+  }, 'POST');
+}
+
+// 搜索图书 - GET方法（备用）
+export const reqSearchBooksGet = (keyword, page = 1, pageSize = 10) => {
+  return ajax(BASE_URL + '/searchBooks', {
+    keyword: keyword,
+    page: page,
+    pageSize: pageSize
+  }, 'GET');
+}
+
+// 搜索图书 - 兼容旧接口
+export const reqSearchBookByKeyword = (keyword, page, pageSize) => ajax(BASE_URL+'/searchBooks', {keyword, page, pageSize}, 'POST')
+
+// 高级搜索图书
+export const reqAdvancedSearchBooks = (searchParams) => ajax(BASE_URL+'/advancedSearch', searchParams, 'POST')
+
+// 获取所有图书（用于选择器等场景）
+export const reqGetAllBooks = () => ajax(BASE_URL+'/all', {}, 'GET')

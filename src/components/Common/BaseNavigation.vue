@@ -63,9 +63,16 @@
             <span>个人中心</span>
           </el-menu-item>
 
-          <el-menu-item index="/user/applyService" class="menu-item">
-            <i class="el-icon-service menu-icon"></i>
-            <span>服务</span>
+          <!-- 公告 -->
+          <el-menu-item index="/announcement" class="menu-item">
+            <i class="el-icon-bell menu-icon"></i>
+            <span>公告</span>
+          </el-menu-item>
+
+          <!-- 网站介绍 -->
+          <el-menu-item index="/about" class="menu-item">
+            <i class="el-icon-info menu-icon"></i>
+            <span>网站介绍</span>
           </el-menu-item>
 
         </el-menu>
@@ -99,7 +106,7 @@ export default {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 1001;
   transition: all 0.3s ease;
 }
 
