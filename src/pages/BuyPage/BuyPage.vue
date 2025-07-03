@@ -46,6 +46,14 @@
         </div>
         <div class="title"><h3 style="float: left;width: 100px">配送方式</h3><span class="height_text" style="margin-left: 60px">包邮</span></div>
         <div class="title"><h3 style="float: left;width: 100px">发票</h3><span class="height_text" style="margin-left: 60px">电子普通发票个人商品明细</span></div>
+
+        <!-- 优惠券选择 -->
+        <div class="list_box">
+          <CouponSelector
+            :order-amount="OrderInitDto.expense.productTotalMoney"
+            @coupon-change="onCouponChange">
+          </CouponSelector>
+        </div>
         <div class="list_box">
           <div class="order_detail">
 <!--            <div class="bill_item">-->
@@ -61,8 +69,8 @@
               <div class="bill_money height_text">-{{OrderInitDto.expense.activityDiscount}}元</div>
             </div>
             <div class="bill_item">
-              <div class="bill_title">优惠卷抵扣:</div>
-              <div class="bill_money height_text">-{{OrderInitDto.expense.coupon}}元</div>
+              <div class="bill_title">优惠券抵扣:</div>
+              <div class="bill_money height_text">-{{couponDiscount.toFixed(2)}}元</div>
             </div>
             <div class="bill_item">
               <div class="bill_title">运费:</div>
@@ -70,7 +78,7 @@
             </div>
             <div class="bill_item">
               <div class="bill_title">应付总额:</div>
-              <div class="bill_money height_text" style="font-size: 22px">{{OrderInitDto.expense.finallyPrice}}元</div>
+              <div class="bill_money height_text" style="font-size: 22px">{{finalPrice.toFixed(2)}}元</div>
             </div>
           </div>
         </div>
@@ -117,15 +125,15 @@
 
 <script>
     import Nav from "../../components/Common/BaseNavigation";
-
     import Footer from "../../components/Common/BaseFooter";
+    import CouponSelector from "../../components/CouponSelector";
     import {reqGetAddressList,reqAddAddress,reqModAddress} from "../../api/address";
     import {reqInitOrder,reqAddOrder} from "../../api/order";
     import {getBookCoverUrl} from "../../utils/imageUtils";
 
     export default {
         name: "BuyPage",
-        components:{Nav,Footer},
+        components:{Nav,Footer,CouponSelector},
         data(){
             return{
                 account: "",
@@ -203,6 +211,9 @@
                         num: 1
                     }]
                 },
+                // 优惠券相关数据
+                selectedCoupon: null,
+                couponDiscount: 0,
             }
         },
         created(){
@@ -436,7 +447,23 @@
             //提交订单
             submitOrder(){
                 this.OrderInitDto.account = this.$store.getters.getUser.account;
+
+                // 添加优惠券信息
+                if (this.selectedCoupon) {
+                    this.OrderInitDto.couponCode = this.selectedCoupon.couponCode;
+                    this.OrderInitDto.expense.couponDiscount = this.couponDiscount;
+                    this.OrderInitDto.expense.couponId = this.selectedCoupon.id;
+                } else {
+                    this.OrderInitDto.couponCode = null;
+                    this.OrderInitDto.expense.couponDiscount = 0;
+                    this.OrderInitDto.expense.couponId = null;
+                }
+
+                // 更新最终价格
+                this.OrderInitDto.expense.finallyPrice = this.finalPrice;
+
                 console.log("====this.OrderInitDto.account===="+this.OrderInitDto.account+"=====")
+                console.log("====优惠券信息====", this.selectedCoupon)
                 reqAddOrder(this.OrderInitDto).then(response=>{
                     if(response.code==200){
                         this.$message({
@@ -463,9 +490,25 @@
             // 获取图书封面完整URL
             getBookCoverUrl(coverImg) {
                 return getBookCoverUrl(coverImg);
+            },
+
+            // 优惠券选择变化处理
+            onCouponChange(data) {
+                this.selectedCoupon = data.coupon;
+                this.couponDiscount = data.discountAmount || 0;
+                console.log('优惠券变化:', data);
             }
+        },
 
+        computed: {
+            // 计算最终价格
+            finalPrice() {
+                const productTotal = this.OrderInitDto.expense.productTotalMoney || 0;
+                const freight = this.OrderInitDto.expense.freight || 0;
+                const activityDiscount = this.OrderInitDto.expense.activityDiscount || 0;
 
+                return productTotal + freight - activityDiscount - this.couponDiscount;
+            }
         }
     }
 </script>

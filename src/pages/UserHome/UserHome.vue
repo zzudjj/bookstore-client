@@ -87,6 +87,13 @@
                     <span>我的订单</span>
                   </router-link>
                   <router-link
+                    to="/user/coupons"
+                    class="nav-item"
+                    :class="{ 'active': $route.path === '/user/coupons' }">
+                    <i class="el-icon-tickets"></i>
+                    <span>优惠券中心</span>
+                  </router-link>
+                  <router-link
                     to="/user/evaluate"
                     class="nav-item"
                     :class="{ 'active': $route.path === '/user/evaluate' }">
@@ -103,13 +110,6 @@
                   <span>会员服务</span>
                 </div>
                 <div class="nav-items">
-                  <router-link
-                    to="/user/coupon"
-                    class="nav-item"
-                    :class="{ 'active': $route.path === '/user/coupon' }">
-                    <i class="el-icon-price-tag"></i>
-                    <span>我的优惠券</span>
-                  </router-link>
                   <router-link
                     to="/user/mesNotice"
                     class="nav-item"
