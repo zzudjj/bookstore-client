@@ -204,7 +204,7 @@
     import BookBox from "../../components/Index/BookCard";
     import RecBookBox from "../../components/Index/RecommendedBooks";
     import {reqGetSortList} from "../../api/sort";
-    import {reqGetTopicList} from "../../api/bookTopic";
+    import {reqGetTopicList as reqGetTopicsV2} from "../../api/topic";
     import {reqGetEnabledAnnouncementList} from "../../api/announcement";
 
     export default {
@@ -278,10 +278,10 @@
             //得到书单列表
             GetTopic(page,pageSize){
                 this.loading=false;
-                reqGetTopicList(page,pageSize).then(response=>{
+                reqGetTopicsV2(page,pageSize).then(response=>{
                     if(response.code==200){
                         this.bookTopicList = [];
-                        let list = response.bookTopicList;
+                        let list = response.topicList;
                         for(let i=0;i<list.length;i++){
                             this.bookTopicList.push({cover:list[i].cover,id:list[i].id});
                         }

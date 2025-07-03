@@ -89,3 +89,6 @@ export const reqSearchBookByKeyword = (keyword, page, pageSize) => ajax(BASE_URL
 
 // 高级搜索图书
 export const reqAdvancedSearchBooks = (searchParams) => ajax(BASE_URL+'/advancedSearch', searchParams, 'POST')
+
+// 获取所有图书（用于选择器等场景）
+export const reqGetAllBooks = () => ajax(BASE_URL+'/all', {}, 'GET')

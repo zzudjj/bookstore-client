@@ -20,7 +20,7 @@ export default function ajax (url, data={}, method='GET') {
 
       promise = axios.get(url)
     } else if (method === 'POST') {
-      promise = axios.post(url, data)
+      promise = axios.post(url, data, { headers: data instanceof FormData ? {'Content-Type':'multipart/form-data'}:{} })
     } else if (method === 'PUT') {
       promise = axios.put(url, data)
     } else if (method === 'DELETE') {

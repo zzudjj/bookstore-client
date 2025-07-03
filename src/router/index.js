@@ -22,7 +22,7 @@ import MenuList from "../components/AdminHome/authority/MenuList";
 import RolesList from "../components/AdminHome/authority/RolesList";
 import UserList from "../components/AdminHome/authority/UserList";
 import AdminHome from "../components/AdminHome/AdminHome";
-import BookTopicSet from "../components/AdminHome/bookNav/topic/BookTopicSet";
+import TopicManage from "../components/AdminHome/bookNav/topic/TopicManage";
 import Search from "../pages/Search/Search";
 import Upload3 from "../components/Upload3";
 import Cart from "../pages/Cart/Cart";
@@ -56,6 +56,8 @@ import BuyPage from "../pages/BuyPage/BuyPage";
 import OrderDetail from "../components/AdminHome/orderNav/OrderDetail";
 import Deliver from "../components/AdminHome/orderNav/Deliver";
 import UserOrderDetail from "../components/UserHome/order/UserOrderDetail";
+import TopicsList from "../pages/Topic/TopicsList";
+import TopicDetail from "../pages/Topic/TopicDetail";
 
 Vue.use(Router)
 
@@ -289,7 +291,7 @@ export default new Router({
         {
           path: 'bookTopicSet',
           name: 'BookTopicSet',
-          component: BookTopicSet,
+          component: TopicManage,
           meta: {
             title: '图单专题',
             url: '/admin/bookTopicSet',
@@ -486,7 +488,12 @@ export default new Router({
     {
       path: '/bookTopic',
       name: 'BookTopic',
-      component: BookTopic
+      component: BookTopic,
+      meta: {
+        title: '书单列表',
+        url: '/admin/bookTopic',
+        requiresAuth: true,
+      },
     },
     {
       path: '/book',
@@ -545,6 +552,20 @@ export default new Router({
       path: '/announcement/detail',
       name: 'AnnouncementDetail',
       component: () => import('../pages/Announcement/AnnouncementDetail')
+    },
+    {
+      path: '/topics',
+      name: 'TopicsList',
+      component: TopicsList
+    },
+    {
+      path: '/topic',
+      name: 'TopicDetail',
+      component: TopicDetail
+    },
+    {
+      path: '/bookTopic',
+      redirect: to => ({path:'/topic',query: to.query})
     },
   ]
 })

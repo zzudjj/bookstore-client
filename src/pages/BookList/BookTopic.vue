@@ -33,8 +33,9 @@
 
     import Footer from "../../components/Common/BaseFooter";
     import {reqGetTopicBookList} from "../../api/bookTopic";
-    import {getImageUrl, getBookCoverUrl} from "../../utils/imageUtils";
+    import {getImageUrl, getBookCoverUrl as baseCoverUrl} from "../../utils/imageUtils";
 
+    // This component is deprecated. Redirect to new TopicDetail
     export default {
         name: "BookTopic",
         components:{Nav,Footer},
@@ -50,9 +51,8 @@
             }
         },
         created() {
-            this.topicId = this.$route.query.id;
-            // console.log("this.topicId:"+this.topicId);
-            this.GetTopicBookList(this.topicId);
+            const id = this.$route.query.id;
+            this.$router.replace({path:'/topic',query:{id}});
         },
         methods: {
             //得到出版社列表
@@ -73,13 +73,16 @@
                 return getImageUrl(imagePath);
             },
 
-            // 获取图书封面完整URL
+            // 获取图书封面完整URL（带默认占位图）
             getBookCoverUrl(coverImg) {
-                return getBookCoverUrl(coverImg);
+                if (!coverImg) {
+                    return getImageUrl('static/image/topic/default_topic_cover.svg');
+                }
+                return baseCoverUrl(coverImg);
             }
 
-        }
-
+        },
+        render(){return null;}
     }
 </script>
 
