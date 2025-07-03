@@ -107,7 +107,7 @@
                 </div>
 
                 <div class="order_actions">
-                  <el-button type="primary" size="small" @click="handlePayment(order)">
+                  <el-button type="primary" size="small" @click="showPaymentDialog(order)">
                     立即支付
                   </el-button>
                   <el-button size="small" @click="handleCancel(order)">
@@ -451,15 +451,27 @@
         </el-pagination>
       </div>
     </div>
+
+    <!-- 支付对话框 -->
+    <PaymentDialog
+      :visible.sync="showPaymentDialogFlag"
+      :order-info="selectedOrderForPayment"
+      @payment-success="onPaymentSuccess"
+      @payment-cancel="onPaymentCancel">
+    </PaymentDialog>
   </div>
 </template>
 <script>
 // <!--  reqUserGetOrderList-->
     import {reqUserGetOrderList,reqModOrderStatus,reqConfirmPayment} from "../../../api/order";
     import {getImageUrl} from "../../../utils/imageUtils";
+    import PaymentDialog from "../../PaymentDialog";
 // <!--用户订单页面-->
     export default {
         name: "UserOrder",
+        components: {
+            PaymentDialog
+        },
         data() {
             return {
                 activeName: 'first',
@@ -469,6 +481,9 @@
                 orderList: [],
                 orderStatus: "",
                 beUserDelete: false,
+                // 支付对话框相关
+                showPaymentDialogFlag: false,
+                selectedOrderForPayment: null,
                 // 订单标签页配置
                 orderTabs: {
                     'all': { label: '全部订单', status: '', count: 0 },
@@ -644,6 +659,25 @@
                         this.$message.error('支付失败，请重试');
                     }
                 }
+            },
+
+            // 显示支付对话框
+            showPaymentDialog(order) {
+                this.selectedOrderForPayment = order;
+                this.showPaymentDialogFlag = true;
+            },
+
+            // 支付成功回调
+            async onPaymentSuccess(data) {
+                console.log('支付成功:', data);
+                this.$message.success('支付成功！');
+                // 刷新订单列表
+                await this.getOrderList(this.currentPage, this.page_size);
+            },
+
+            // 支付取消回调
+            onPaymentCancel() {
+                console.log('支付已取消');
             },
 
             // 处理取消订单

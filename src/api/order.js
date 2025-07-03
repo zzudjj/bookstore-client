@@ -11,7 +11,9 @@ export const reqAddOrder = (orderInitDto) => ajax(BASE_URL+"/addOrder", {
   bookList: orderInitDto.bookList,
   expense: orderInitDto.expense,
   addressList: orderInitDto.addressList,
-  address: orderInitDto.address
+  address: orderInitDto.address,
+  couponCode: orderInitDto.couponCode,
+  isSpikeOrder: orderInitDto.isSpikeOrder
 },"POST")
 
 //管理员得到订单列表

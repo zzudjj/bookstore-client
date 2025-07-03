@@ -16,7 +16,7 @@ import OrderSet from "../components/AdminHome/orderNav/OrderSet";
 import ReturnOrder from "../components/AdminHome/orderNav/ReturnOrder";
 import ReturnReason from "../components/AdminHome/orderNav/ReturnReason";
 import BookRecommend from "../components/AdminHome/market/BookRecommend";
-import Coupon from "../components/AdminHome/market/Coupon";
+import CouponManagement from "../pages/AdminHome/CouponManagement";
 import SpikeSet from "../components/AdminHome/market/SpikeSet";
 import MenuList from "../components/AdminHome/authority/MenuList";
 import RolesList from "../components/AdminHome/authority/RolesList";
@@ -299,7 +299,7 @@ export default new Router({
         {
           path: 'coupon',
           name: 'Coupon',
-          component: () => import('../pages/AdminHome/CouponManagement.vue'),
+          component: CouponManagement,
           meta: {
             title: '优惠券管理',
             url: '/admin/coupon',

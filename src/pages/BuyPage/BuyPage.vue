@@ -51,6 +51,7 @@
         <div class="list_box">
           <CouponSelector
             :order-amount="OrderInitDto.expense.productTotalMoney"
+            :is-spike-order="isSpikeOrder"
             @coupon-change="onCouponChange">
           </CouponSelector>
         </div>
@@ -214,6 +215,7 @@
                 // 优惠券相关数据
                 selectedCoupon: null,
                 couponDiscount: 0,
+                isSpikeOrder: false,
             }
         },
         created(){
@@ -223,6 +225,7 @@
             // 检查是否是秒杀订单
             if (this.$route.query.type === 'spike' && this.$route.query.orderId) {
                 // 秒杀订单初始化
+                this.isSpikeOrder = true;
                 this.initSpikeOrder(this.$route.query.orderId, this.account);
             } else {
                 // 普通订单初始化
@@ -448,8 +451,11 @@
             submitOrder(){
                 this.OrderInitDto.account = this.$store.getters.getUser.account;
 
-                // 添加优惠券信息
-                if (this.selectedCoupon) {
+                // 设置订单类型
+                this.OrderInitDto.isSpikeOrder = this.isSpikeOrder;
+
+                // 添加优惠券信息（秒杀订单不允许使用优惠券）
+                if (this.selectedCoupon && !this.isSpikeOrder) {
                     this.OrderInitDto.couponCode = this.selectedCoupon.couponCode;
                     this.OrderInitDto.expense.couponDiscount = this.couponDiscount;
                     this.OrderInitDto.expense.couponId = this.selectedCoupon.id;
@@ -494,9 +500,13 @@
 
             // 优惠券选择变化处理
             onCouponChange(data) {
-                this.selectedCoupon = data.coupon;
-                this.couponDiscount = data.discountAmount || 0;
-                console.log('优惠券变化:', data);
+                if (!this.isSpikeOrder) {
+                    this.selectedCoupon = data.coupon;
+                    this.couponDiscount = data.discountAmount || 0;
+                    console.log('优惠券变化:', data);
+                } else {
+                    console.log('秒杀订单不支持使用优惠券');
+                }
             }
         },
 
@@ -506,8 +516,9 @@
                 const productTotal = this.OrderInitDto.expense.productTotalMoney || 0;
                 const freight = this.OrderInitDto.expense.freight || 0;
                 const activityDiscount = this.OrderInitDto.expense.activityDiscount || 0;
+                const couponDiscount = this.isSpikeOrder ? 0 : this.couponDiscount;
 
-                return productTotal + freight - activityDiscount - this.couponDiscount;
+                return productTotal + freight - activityDiscount - couponDiscount;
             }
         }
     }

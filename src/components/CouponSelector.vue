@@ -1,6 +1,10 @@
 <template>
   <div class="coupon-selector">
-    <div class="coupon-section">
+    <div v-if="isSpikeOrder" class="spike-order-notice">
+      <i class="el-icon-warning"></i>
+      <span>秒杀订单不支持使用优惠券</span>
+    </div>
+    <div v-else class="coupon-section">
       <div class="section-header" @click="showCouponDialog = true">
         <span class="label">优惠券</span>
         <div class="coupon-info">
@@ -20,10 +24,10 @@
     </div>
 
     <!-- 优惠券选择对话框 -->
-    <el-dialog 
-      title="选择优惠券" 
+    <el-dialog
+      title="选择优惠券"
       :visible.sync="showCouponDialog"
-      width="600px"
+      width="700px"
       class="coupon-dialog">
       
       <div v-if="loading" class="loading-state">
@@ -35,12 +39,12 @@
           <p>订单金额: ¥{{ orderAmount.toFixed(2) }}</p>
         </div>
         
-        <div class="coupon-list">
+        <el-radio-group v-model="selectedCouponId" class="coupon-list">
           <!-- 不使用优惠券选项 -->
-          <div 
+          <div
             class="coupon-option"
-            :class="{ active: !selectedCoupon }"
-            @click="selectCoupon(null)">
+            :class="{ active: selectedCouponId === null }"
+            @click="selectedCouponId = null">
             <div class="coupon-content">
               <div class="coupon-left">
                 <div class="no-coupon-icon">
@@ -53,20 +57,22 @@
               </div>
             </div>
             <div class="coupon-radio">
-              <el-radio :value="true" :label="!selectedCoupon"></el-radio>
+              <el-radio :label="null">
+                <span></span>
+              </el-radio>
             </div>
           </div>
           
           <!-- 可用优惠券列表 -->
-          <div 
-            v-for="coupon in availableCoupons" 
+          <div
+            v-for="coupon in availableCoupons"
             :key="coupon.id"
             class="coupon-option"
-            :class="{ 
-              active: selectedCoupon && selectedCoupon.id === coupon.id,
-              disabled: !coupon.canUse 
+            :class="{
+              active: selectedCouponId === coupon.id,
+              disabled: !coupon.canUse
             }"
-            @click="selectCoupon(coupon)">
+            @click="coupon.canUse && (selectedCouponId = coupon.id)">
             
             <div class="coupon-content">
               <div class="coupon-left" :class="getCouponTypeClass(coupon.type)">
@@ -88,14 +94,14 @@
               </div>
             </div>
             <div class="coupon-radio">
-              <el-radio 
-                :value="selectedCoupon && selectedCoupon.id === coupon.id" 
-                :label="true"
+              <el-radio
+                :label="coupon.id"
                 :disabled="!coupon.canUse">
+                <span></span>
               </el-radio>
             </div>
           </div>
-        </div>
+        </el-radio-group>
         
         <div v-if="availableCoupons.length === 0" class="empty-state">
           <i class="el-icon-tickets"></i>
@@ -126,6 +132,10 @@ export default {
     orderAmount: {
       type: Number,
       required: true
+    },
+    isSpikeOrder: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -133,7 +143,7 @@ export default {
       showCouponDialog: false,
       availableCoupons: [],
       selectedCoupon: null,
-      tempSelectedCoupon: null,
+      selectedCouponId: null,
       discountAmount: 0,
       loading: false
     }
@@ -150,14 +160,14 @@ export default {
     
     showCouponDialog(val) {
       if (val) {
-        this.tempSelectedCoupon = this.selectedCoupon
+        this.selectedCouponId = this.selectedCoupon ? this.selectedCoupon.id : null
         this.loadAvailableCoupons()
       }
     }
   },
   methods: {
     async loadAvailableCoupons() {
-      if (this.orderAmount <= 0) return
+      if (this.orderAmount <= 0 || this.isSpikeOrder) return
       
       this.loading = true
       try {
@@ -195,17 +205,18 @@ export default {
         this.loading = false
       }
     },
-    
-    selectCoupon(coupon) {
-      if (coupon && !coupon.canUse) return
-      this.tempSelectedCoupon = coupon
-    },
-    
+
     confirmSelection() {
-      this.selectedCoupon = this.tempSelectedCoupon
+      // 根据selectedCouponId找到对应的优惠券
+      if (this.selectedCouponId === null) {
+        this.selectedCoupon = null
+      } else {
+        this.selectedCoupon = this.availableCoupons.find(c => c.id === this.selectedCouponId)
+      }
+
       this.updateDiscountAmount()
       this.showCouponDialog = false
-      
+
       // 通知父组件优惠券选择变化
       this.$emit('coupon-change', {
         coupon: this.selectedCoupon,
@@ -324,17 +335,26 @@ export default {
 .coupon-list {
   max-height: 400px;
   overflow-y: auto;
+  width: 100%;
+}
+
+.coupon-list .el-radio-group {
+  width: 100%;
 }
 
 .coupon-option {
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 20px 15px;
+  min-height: 100px;
+  width: 100%;
   border: 1px solid #e4e7ed;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
   cursor: pointer;
   transition: all 0.3s;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 .coupon-option:hover:not(.disabled) {
@@ -358,14 +378,15 @@ export default {
 }
 
 .coupon-left {
-  width: 80px;
-  height: 60px;
-  border-radius: 6px;
+  width: 90px;
+  height: 70px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  margin-right: 15px;
+  margin-right: 20px;
+  flex-shrink: 0;
 }
 
 .coupon-left.full-reduction {
@@ -378,9 +399,9 @@ export default {
 
 .no-coupon-icon {
   background: #909399;
-  width: 80px;
-  height: 60px;
-  border-radius: 6px;
+  width: 90px;
+  height: 70px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -399,17 +420,23 @@ export default {
 
 .coupon-right {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 70px;
 }
 
 .coupon-right h4 {
-  margin: 0 0 5px 0;
+  margin: 0 0 8px 0;
   font-size: 16px;
+  font-weight: 600;
   color: #303133;
+  line-height: 1.4;
 }
 
 .coupon-right p {
-  margin: 0 0 3px 0;
-  font-size: 14px;
+  margin: 0 0 5px 0;
+  font-size: 13px;
   color: #606266;
 }
 
@@ -429,14 +456,26 @@ export default {
   font-weight: 500;
 }
 
-.discount-preview {
-  color: #67c23a;
-  font-size: 12px;
-  font-weight: 500;
-}
+
 
 .coupon-radio {
   margin-left: 15px;
+  flex-shrink: 0;
+}
+
+.coupon-radio .el-radio {
+  margin-right: 0;
+}
+
+.coupon-radio .el-radio__label {
+  display: none;
+}
+
+.discount-preview {
+  color: #67c23a;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
 .empty-state {
@@ -461,5 +500,35 @@ export default {
 
 .dialog-footer {
   text-align: right;
+}
+
+.coupon-dialog .el-dialog__body {
+  padding: 20px 24px;
+}
+
+.order-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.order-info p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.spike-order-notice {
+  padding: 12px 16px;
+  background-color: #fff6f7;
+  border: 1px solid #fbc4c4;
+  border-radius: 4px;
+  color: #f56c6c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
 }
 </style>
