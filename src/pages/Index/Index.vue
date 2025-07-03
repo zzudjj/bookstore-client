@@ -215,6 +215,7 @@
                 recommend: "recommend",
                 newProduct: "newProduct",
                 bookTopicList: [],
+                announcements: [],
 
                 // 分类菜单相关
                 currentSubMenu: null,
@@ -356,19 +357,22 @@
                 });
             },
 
-            // 获取公告列表
-            getAnnouncements() {
+            // 获取启用的公告列表
+            loadAnnouncements() {
                 reqGetEnabledAnnouncementList().then(res => {
                     if (res.code === 200) {
-                        this.announcements = (res.announcementList || []).slice(0,5);
+                        this.announcements = res.announcementList.slice(0, 5); // 只显示前5条
                     }
+                }).catch(err => {
+                    console.error("获取公告失败: ", err);
                 });
             },
 
             // 格式化日期
-            formatDate(timeStr) {
-                if (!timeStr) return '';
-                return timeStr.substr(0, 10);
+            formatDate(timestamp) {
+                if (!timestamp) return '';
+                const date = new Date(timestamp);
+                return `${date.getMonth() + 1}-${date.getDate()}`;
             },
         },
         computed:{
@@ -387,6 +391,7 @@
             this.getSortList();
             // 添加滚动监听
             window.addEventListener('scroll', this.handleScroll);
+            this.loadAnnouncements();
         },
         beforeDestroy() {
             // 移除滚动监听
