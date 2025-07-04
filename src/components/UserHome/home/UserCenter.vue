@@ -3,8 +3,8 @@
     <div class="info">
       <div class="user_card">
         <el-image style="width: 160px; height: 160px;vertical-align: middle;border-radius: 50%;float: left;margin: 20px 10px"
-            :src="user.imgUrl"
-        fit="fill"></el-image>
+            :src="getAvatarUrl(user.imgUrl)"
+            fit="fill"></el-image>
         <div class="user_card_info">
           <p style="font-size: 22px;color: #616161">{{user.name}}</p>
           <p><span class="link" @click="gotoModUserInfo">修改个人信息></span></p>
@@ -65,6 +65,7 @@
 <script>
     // <!--用户中心-->
     import {reqGetUserInfo} from "../../../api/user";
+    import { getAvatarUrl } from "../../../utils/imageUtils";
 
     export default {
         name: "UserCenter",
@@ -94,11 +95,13 @@
             this.initUserCenter();
         },
         methods: {
+            getAvatarUrl,
             initUserCenter(){
                 reqGetUserInfo(this.$store.getters.getUser.account).then(response=>{
                     console.log(response);
                     if(response.code==200){
                         this.user = response.user;
+                        this.$store.commit('SET_USERINFO', response.user);
                     }else{
                         this.$message({
                             message: response.message,

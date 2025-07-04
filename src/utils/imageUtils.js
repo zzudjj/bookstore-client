@@ -73,6 +73,21 @@ export function checkImageExists(imageUrl) {
   });
 }
 
+/**
+ * 处理头像图片URL
+ * @param {string} avatarImg - 头像相对路径
+ * @param {string} name - 用户名（用于生成默认头像）
+ * @returns {string} 完整的头像图片URL
+ */
+export function getAvatarUrl(avatarImg, name = '') {
+  if (avatarImg && typeof avatarImg === 'string' && avatarImg.trim() !== '') {
+    return getImageUrl(avatarImg);
+  }
+  // 使用 Dicebear initials 生成网络头像
+  const seed = encodeURIComponent(name || '用户');
+  return `https://api.dicebear.com/6.x/initials/svg?seed=${seed}`;
+}
+
 // 导出配置，供其他地方使用
 export const IMAGE_CONFIG = {
   SERVER_BASE_URL,
@@ -80,4 +95,5 @@ export const IMAGE_CONFIG = {
   // 图片路径前缀
   BOOK_IMAGE_PREFIX: 'static/image/book/',
   TOPIC_IMAGE_PREFIX: 'static/image/topic/',
+  AVATAR_IMAGE_PREFIX: 'static/image/avatar/',
 };

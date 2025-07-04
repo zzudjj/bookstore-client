@@ -3,11 +3,11 @@
     <div class="info">
       <div class="user_card">
         <el-image style="width: 160px; height: 160px;vertical-align: middle;border-radius: 50%;float: left;margin: 20px 10px"
-                  :src="imgS"
+                  :src="getAvatarUrl(user.imgUrl)"
                   fit="fill"></el-image>
         <div class="user_card_info">
-          <p style="font-size: 22px;color: #616161">一条小黄龙</p>
-          <p style="color: #757575">修改头像</p>
+          <p style="font-size: 22px;color: #616161">{{user.name}}</p>
+          <p style="color: #757575;cursor:pointer" @click="showAvatarDialog = true">修改头像</p>
         </div>
       </div>
       <div class="user_action">
@@ -118,67 +118,118 @@
         </el-tab-pane>
       </el-tabs>
     </div>
+    <el-dialog title="修改头像" :visible.sync="showAvatarDialog" width="400px">
+      <el-upload
+        class="avatar-uploader"
+        :show-file-list="false"
+        :http-request="uploadAvatar"
+        :before-upload="beforeAvatarUpload"
+        accept="image/*">
+        <img v-if="avatarPreview" :src="avatarPreview" class="avatar-preview" style="width:100px;height:100px;border-radius:50%"/>
+        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+      </el-upload>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showAvatarDialog = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-    // <!--用户中心-->
-    export default {
-        name: "UserInfo",
-        data () {
-            var checkAccount = (rule, value, callback) => {
-                if (!value) {
-                    return callback(new Error('账号不能为空'));
-                }
-                setTimeout(() => {
-                    if(value.length>13){
-                        callback(new Error('账号不能大于13位'));
-                    }else {
-                        callback();
-                    }
-                }, 1000);
-            };
-            var validatePass = (rule, value, callback) => {
-                if (value === '') {
-                    callback(new Error('请输入密码'));
-                } else {
+import { getAvatarUrl } from "../../../utils/imageUtils";
+import axios from 'axios';
+
+export default {
+    name: "UserInfo",
+    data () {
+        var checkAccount = (rule, value, callback) => {
+            if (!value) {
+                return callback(new Error('账号不能为空'));
+            }
+            setTimeout(() => {
+                if(value.length>13){
+                    callback(new Error('账号不能大于13位'));
+                }else {
                     callback();
                 }
-            };
-            return {
-                msg: 'Welcome to Your Vue.js App',
-                imgS: require('../../../assets/image/head.jpg'),
-                imgS1: require('../../../assets/image/weibo.png'),
-                imgS2: require('../../../assets/image/qq.png'),
-                imgS3: require('../../../assets/image/weixin.png'),
-                imgS4: require('../../../assets/image/apple.png'),
-                activeName: 'first',
-                currentPage: 1,
-                page_size: 5,
-                total:20,
-                ruleForm: {
-                    account: '',
-                    password: '',
-                },
-                rules: {
-                    account: [
-                        { validator: checkAccount, trigger: 'blur' }
-                    ],
-                    password: [
-                        { validator: validatePass, trigger: 'blur' }
-                    ],
-                }
+            }, 1000);
+        };
+        var validatePass = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请输入密码'));
+            } else {
+                callback();
             }
-        },
-        mounted(){
-
-        },
-        methods: {
-            handleClick(tab, event) {
-                console.log(tab, event);
+        };
+        return {
+            msg: 'Welcome to Your Vue.js App',
+            imgS: require('../../../assets/image/head.jpg'),
+            imgS1: require('../../../assets/image/weibo.png'),
+            imgS2: require('../../../assets/image/qq.png'),
+            imgS3: require('../../../assets/image/weixin.png'),
+            imgS4: require('../../../assets/image/apple.png'),
+            activeName: 'first',
+            currentPage: 1,
+            page_size: 5,
+            total:20,
+            ruleForm: {
+                account: '',
+                password: '',
             },
+            rules: {
+                account: [
+                    { validator: checkAccount, trigger: 'blur' }
+                ],
+                password: [
+                    { validator: validatePass, trigger: 'blur' }
+                ],
+            },
+            showAvatarDialog: false,
+            avatarPreview: '',
         }
+    },
+    computed: {
+        user() {
+            return this.$store.getters.getUser || {};
+        }
+    },
+    mounted(){
+
+    },
+    methods: {
+        handleClick(tab, event) {
+            console.log(tab, event);
+        },
+        getAvatarUrl,
+        beforeAvatarUpload(file) {
+            this.avatarPreview = URL.createObjectURL(file);
+            return true;
+        },
+        uploadAvatar(option) {
+            const formData = new FormData();
+            formData.append('file', option.file);
+            // 立即本地预览
+            this.avatarPreview = URL.createObjectURL(option.file);
+            axios.post('/user/uploadAvatar', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': localStorage.getItem('token') || ''
+                }
+            }).then(res => {
+                if(res.data && res.data.code === 200) {
+                    this.$message.success('头像上传成功！');
+                    this.$message.info('头像已上传，服务器同步有延迟，稍后刷新页面即可看到新头像');
+                    this.showAvatarDialog = false;
+                    this.avatarPreview = '';
+                } else {
+                    this.$message.error(res.data.message || '上传失败');
+                }
+            }).catch(() => {
+                this.$message.error('上传失败');
+            });
+        },
     }
+}
 </script>
 
 <style scoped>

@@ -391,6 +391,11 @@ export default new Router({
           },
         },
         {
+          path: '/admin/commentList',
+          name: 'AdminCommentList',
+          component: () => import('../pages/AdminHome/CommentList.vue')
+        },
+        {
           path: 'announcementManage',
           name: 'AnnouncementManage',
           component: () => import('../components/AdminHome/content/announcement/AnnouncementManage'),
