@@ -21,7 +21,7 @@ import SpikeSet from "../components/AdminHome/market/SpikeSet";
 import MenuList from "../components/AdminHome/authority/MenuList";
 import RolesList from "../components/AdminHome/authority/RolesList";
 import UserList from "../components/AdminHome/authority/UserList";
-import AdminHome from "../components/AdminHome/AdminHome";
+import EnhancedDashboard from "../components/AdminHome/EnhancedDashboard";
 import TopicManage from "../components/AdminHome/bookNav/topic/TopicManage";
 import Search from "../pages/Search/Search";
 import Upload3 from "../components/Upload3";
@@ -101,11 +101,12 @@ export default new Router({
         {
           path: 'home',
           name: 'home',
-          component: AdminHome,
+          component: EnhancedDashboard,
           meta: {
-            title: '统计页面',
+            title: '管理仪表盘',
             url: '/admin/home',
-            requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
+            requiresAuth: true,
+            requiresManage: true
           },
         },
         {

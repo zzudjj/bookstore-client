@@ -603,6 +603,7 @@ import Footer from "../../components/Common/BaseFooter";
 import {reqGetSortList} from "../../api/sort";
 import {reqGetBookListBySort, reqGetBookList, reqSearchBooks, reqSearchBooksGet, reqSearchBookByKeyword} from "../../api/book";
 import {reqSearchBook} from "../../api/index";
+import {reqAddCart} from "../../api/cart";
 
 export default {
   name: "Search",
@@ -942,17 +943,66 @@ export default {
 
     // 添加到购物车
     addToCart(book) {
-      // 这里添加购物车逻辑
-      this.$message.success(`《${book.bookName}》已添加到购物车`);
-      console.log('添加到购物车:', book);
+      // 检查库存
+      if (book.stock <= 0) {
+        this.$message({
+          message: "商品库存不足",
+          type: "warning"
+        });
+        return;
+      }
+
+      // 检查登录状态
+      const user = this.$store.getters.getUser;
+      if (!user || !user.account) {
+        this.$message({
+          message: "请先登录",
+          type: "warning"
+        });
+        this.$router.push('/login');
+        return;
+      }
+
+      // 调用API添加到购物车
+      reqAddCart(user.account, book.id, 1).then(response => {
+        if (response.code == 200) {
+          this.$message({
+            message: `《${book.bookName}》已添加到购物车`,
+            type: "success",
+            duration: 1500
+          });
+        } else {
+          this.$message({
+            message: response.message || "添加失败",
+            type: "warning",
+            duration: 1500
+          });
+        }
+      }).catch(() => {
+        this.$message({
+          message: "添加到购物车失败",
+          type: "error"
+        });
+      });
     },
 
     // 立即购买
     buyNow(book) {
-      // 这里添加立即购买逻辑
+      // 检查库存
+      if (book.stock <= 0) {
+        this.$message({
+          message: "商品库存不足",
+          type: "warning"
+        });
+        return;
+      }
+
+      // 构造参数，参考图书详情页的逻辑
+      const arr = [book.id, 0]; // [bookId, from] from=0表示来自详情页/分类页
+      const ids = JSON.stringify(arr);
       this.$router.push({
-        path: '/buy',
-        query: { bookId: book.id }
+        path: "/buyPage",
+        query: { ids }
       });
     },
 
@@ -1188,21 +1238,7 @@ export default {
       }
     },
 
-    // 添加到购物车
-    addToCart(book) {
-      this.$message({
-        type: 'success',
-        message: `《${book.bookName}》已添加到购物车`
-      });
-    },
 
-    // 立即购买
-    buyNow(book) {
-      this.$router.push({
-        path: '/buy',
-        query: { bookId: book.id }
-      });
-    },
 
     // 返回首页
     goToHome() {

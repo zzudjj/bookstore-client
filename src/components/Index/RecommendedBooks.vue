@@ -9,10 +9,7 @@
         <h2 class="section-title">{{ this.sortTitle }}</h2>
         <div class="title-decoration"></div>
       </div>
-      <router-link :to="{path: '/search', query: {sort: listSort}}" class="view-more-btn">
-        <span>查看更多</span>
-        <i class="el-icon-arrow-right"></i>
-      </router-link>
+
     </div>
 
     <!-- 图书列表 -->
@@ -195,17 +192,7 @@
   background: white;
 }
 
-.book-showcase[data-type="recommend"] .view-more-btn {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-}
 
-.book-showcase[data-type="recommend"] .view-more-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-}
 
 /* 标题区域 */
 .section-header {
@@ -259,28 +246,7 @@
   border-radius: 2px;
 }
 
-.view-more-btn {
-  display: flex;
-  align-items: center;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  text-decoration: none;
-  border-radius: 25px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
 
-.view-more-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-  color: white;
-}
-
-.view-more-btn span {
-  margin-right: 8px;
-}
 
 /* 图书网格 */
 .books-grid {

@@ -36,10 +36,10 @@
           :collapse-transition="false"
           router>
 
-          <!-- 🏠 首页 -->
+          <!-- 🏠 仪表盘 -->
           <el-menu-item index="/admin/home" class="menu-item">
-            <i class="el-icon-s-home menu-icon"></i>
-            <span slot="title" class="menu-title">仪表盘</span>
+            <i class="el-icon-data-analysis menu-icon"></i>
+            <span slot="title" class="menu-title">管理仪表盘</span>
           </el-menu-item>
 
           <!-- 📚 图书管理 -->
