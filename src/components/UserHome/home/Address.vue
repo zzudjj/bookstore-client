@@ -1,45 +1,115 @@
 <template>
   <div class="content">
-    <h1>收货地址</h1>
-    <div class="box_info">
-      <div class="address_list">
-        <div class="add" @click="handleAdd">
-          <i class="el-icon-edit"></i>
-          <p style="font-size: 14px">添加新地址</p>
-        </div>
+    <div class="header-section">
+      <h1>
+        <i class="el-icon-location"></i>
+        收货地址管理
+      </h1>
+      <el-button type="primary" icon="el-icon-plus" @click="handleAdd">
+        添加新地址
+      </el-button>
+    </div>
+
+    <div class="address-container" v-loading="loading">
+      <!-- 空状态 -->
+      <div v-if="addressList.length === 0 && !loading" class="empty-state">
+        <i class="el-icon-location-outline"></i>
+        <p>暂无收货地址</p>
+        <el-button type="primary" @click="handleAdd">添加第一个地址</el-button>
       </div>
-      <div class="address_list" v-for="address in addressList" :key="address.id">
-        <div class="name">{{address.name}}
-          <span style="float: right;font-size: 14px;color: #757575;">{{address.label}}</span>
-        </div>
-        <div class="tel">{{address.phone}}</div>
-        <div class="detail">{{address.addr}}</div>
-        <div class="foot">
-          <span style="float: right" @click="delAddress(address.id)">删除</span>
-          <span style="float: right;margin-right: 10px" @click="handleMod(address)">修改</span>
+
+      <!-- 地址列表 -->
+      <div class="address-grid">
+        <div
+          v-for="address in addressList"
+          :key="address.id"
+          class="address-card">
+          <div class="card-header">
+            <div class="user-info">
+              <span class="name">{{ address.name }}</span>
+              <span class="phone">{{ address.phone }}</span>
+            </div>
+            <el-tag
+              :type="getTagType(address.label)"
+              size="small">
+              {{ address.label || '默认' }}
+            </el-tag>
+          </div>
+
+          <div class="address-detail">
+            <i class="el-icon-location-outline"></i>
+            <span>{{ address.addr }}</span>
+          </div>
+
+          <div class="card-actions">
+            <el-button
+              type="text"
+              icon="el-icon-edit"
+              @click="handleMod(address)">
+              修改
+            </el-button>
+            <el-button
+              type="text"
+              icon="el-icon-delete"
+              class="delete-btn"
+              @click="delAddress(address.id)">
+              删除
+            </el-button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!--添加图书的弹出框-->
-    <el-dialog title="添加收货地址" :visible.sync="dialogVisible" width="30%"  center>
-      <el-form ref="form" :model="address" >
-        <el-form-item>
-          <el-input placeholder="姓名" v-model="address.name"></el-input>
+    <!-- 地址编辑弹窗 -->
+    <el-dialog
+      :title="isEdit ? '修改收货地址' : '添加收货地址'"
+      :visible.sync="dialogVisible"
+      width="500px"
+      center
+      @close="resetForm">
+      <el-form
+        ref="addressForm"
+        :model="address"
+        :rules="addressRules"
+        label-width="80px">
+        <el-form-item label="收货人" prop="name">
+          <el-input
+            v-model="address.name"
+            placeholder="请输入收货人姓名"
+            clearable>
+          </el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="手机号" v-model="address.phone"></el-input>
+        <el-form-item label="手机号" prop="phone">
+          <el-input
+            v-model="address.phone"
+            placeholder="请输入手机号码"
+            clearable>
+          </el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input type="textarea" placeholder="详细地址" v-model="address.addr"></el-input>
+        <el-form-item label="详细地址" prop="addr">
+          <el-input
+            type="textarea"
+            v-model="address.addr"
+            placeholder="请输入详细地址"
+            :rows="3"
+            maxlength="200"
+            show-word-limit>
+          </el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="地址标签" v-model="address.label"></el-input>
+        <el-form-item label="地址标签" prop="label">
+          <el-select v-model="address.label" placeholder="请选择地址标签" style="width: 100%;">
+            <el-option label="家" value="家"></el-option>
+            <el-option label="公司" value="公司"></el-option>
+            <el-option label="学校" value="学校"></el-option>
+            <el-option label="其他" value="其他"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onSubmit('form')">确 定</el-button>
+        <el-button type="primary" @click="onSubmit" :loading="submitting">
+          {{ isEdit ? '保存修改' : '添加地址' }}
+        </el-button>
       </span>
     </el-dialog>
 
@@ -54,170 +124,177 @@
         data() {
             return {
                 dialogVisible: false,
-                isEdit:false,//用来判断是添加地址还是修改地址 false:添加 true:修改
-                addressList:[
-                    {
-                        id: 1,
-                        account: "黄小龙",
-                        name: "小胖",
-                        phone: "18988798892",
-                        addr: "江西抚州市临川区西大街街道东华理工大学长江学院本部(330006)",
-                        label: "家",
-                        off: false,
-                    },
-                    {
-                        id: 2,
-                        account: "黄小龙",
-                        name: "小胖",
-                        phone: "18988798892",
-                        addr: "江西抚州市临川区西大街街道东华理工大学长江学院本部(330006)",
-                        label: "家",
-                        off: false,
-                    },
-                ],
-                address:{
+                isEdit: false, // 用来判断是添加地址还是修改地址 false:添加 true:修改
+                loading: false,
+                submitting: false,
+                addressList: [],
+                address: {
                     id: null,
-                    account: "黄小龙",
+                    account: "",
                     name: "",
                     phone: "",
                     addr: "",
-                    label: "",
+                    label: "家",
                 },
+                addressRules: {
+                    name: [
+                        { required: true, message: '请输入收货人姓名', trigger: 'blur' },
+                        { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' }
+                    ],
+                    phone: [
+                        { required: true, message: '请输入手机号码', trigger: 'blur' },
+                        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+                    ],
+                    addr: [
+                        { required: true, message: '请输入详细地址', trigger: 'blur' },
+                        { min: 5, max: 200, message: '地址长度在 5 到 200 个字符', trigger: 'blur' }
+                    ],
+                    label: [
+                        { required: true, message: '请选择地址标签', trigger: 'change' }
+                    ]
+                }
             };
         },
         created(){
             this.address.account = this.$store.getters.getUser.account;
-            console.log("=========this.address.account:============"+this.address.account+"===")
             this.getAddressList();
         },
         methods: {
-            //处理添加操作
+            // 获取标签类型
+            getTagType(label) {
+                const typeMap = {
+                    '家': 'success',
+                    '公司': 'primary',
+                    '学校': 'warning',
+                    '其他': 'info'
+                };
+                return typeMap[label] || 'info';
+            },
+
+            // 处理添加操作
             handleAdd(){
+                this.resetForm();
                 this.dialogVisible = true;
                 this.isEdit = false;
             },
-            //处理修改
+
+            // 处理修改
             handleMod(addr){
+                this.address = {
+                    id: addr.id,
+                    account: addr.account,
+                    name: addr.name,
+                    phone: addr.phone,
+                    addr: addr.addr,
+                    label: addr.label || '家'
+                };
                 this.dialogVisible = true;
                 this.isEdit = true;
-                this.address.id = addr.id;
-                this.address.account = addr.account;
-                this.address.name = addr.name;
-                this.address.phone = addr.phone;
-                this.address.addr = addr.addr;
-                this.address.label = addr.label;
             },
 
-            //提交处理
-            onSubmit(formName) {
-                if(this.isEdit){
-                    this.modifyAddress();
-                }else {
-                    this.addAddress();
-                }
-
-                // this.$refs[formName].validate((valid)=>{
-                //     // console.log(this.publish.isShow);
-                //     if(valid){
-                //         if(this.isEdit){
-                //             this.modifyAddress();
-                //         }else {
-                //             this.addAddress();
-                //         }
-                //     }else {
-                //         this.$message.error("地址信息不符合要求，请重试");
-                //     }
-                // });
+            // 重置表单
+            resetForm() {
+                this.address = {
+                    id: null,
+                    account: this.$store.getters.getUser.account,
+                    name: "",
+                    phone: "",
+                    addr: "",
+                    label: "家"
+                };
+                this.$nextTick(() => {
+                    if (this.$refs.addressForm) {
+                        this.$refs.addressForm.clearValidate();
+                    }
+                });
             },
 
-            //得到用户地址列表
+            // 提交处理
+            onSubmit() {
+                this.$refs.addressForm.validate((valid) => {
+                    if (valid) {
+                        this.submitting = true;
+                        if(this.isEdit){
+                            this.modifyAddress();
+                        } else {
+                            this.addAddress();
+                        }
+                    } else {
+                        this.$message.error("请填写完整的地址信息");
+                    }
+                });
+            },
+
+            // 获取用户地址列表
             getAddressList(){
-                console.log("===获取的地址列表：==="+this.$store.getters.getUser.account+"=====");
-                reqGetAddressList(this.$store.getters.getUser.account).then(response=>{
-                    console.log(response);
-                    if(response.code==200){
-                        this.addressList = response.addressList;
-                        console.log("===response.addressList.length==="+response.addressList.length);
-                    }else{
-                        this.$message({
-                            message: response.message,
-                            type: "warning"
-                        })
+                this.loading = true;
+                const userAccount = this.$store.getters.getUser.account;
+
+                reqGetAddressList(userAccount).then(response => {
+                    if(response.code === 200){
+                        this.addressList = response.addressList || [];
+                    } else {
+                        this.$message.warning(response.message || '获取地址列表失败');
                     }
-                }).catch(err=>{
-                    console.log(err);
-                })
+                }).catch(() => {
+                    this.$message.error('网络错误，请稍后重试');
+                }).finally(() => {
+                    this.loading = false;
+                });
             },
 
-            //添加地址
+            // 添加地址
             addAddress(){
-                reqAddAddress(this.address).then(response=>{
-                    console.log(response);
-                    if(response.code==200){
-                        this.$message({
-                            message: response.message,
-                            type: "success"
-                        });
+                reqAddAddress(this.address).then(response => {
+                    if(response.code === 200){
+                        this.$message.success('地址添加成功');
                         this.dialogVisible = false;
                         this.getAddressList();
-                    }else{
-                        this.$message({
-                            message: response.message,
-                            type: "warning"
-                        })
+                    } else {
+                        this.$message.warning(response.message || '添加地址失败');
                     }
-                }).catch(err=>{
-                    console.log(err);
-                })
+                }).catch(() => {
+                    this.$message.error('网络错误，请稍后重试');
+                }).finally(() => {
+                    this.submitting = false;
+                });
             },
 
-            //修改地址
+            // 修改地址
             modifyAddress(){
-                reqModAddress(this.address).then(response=>{
-                    console.log(response);
-                    if(response.code==200){
-                        this.$message({
-                            message: response.message,
-                            type: "success"
-                        });
+                reqModAddress(this.address).then(response => {
+                    if(response.code === 200){
+                        this.$message.success('地址修改成功');
                         this.dialogVisible = false;
                         this.getAddressList();
-                    }else{
-                        this.$message({
-                            message: response.message,
-                            type: "warning"
-                        })
+                    } else {
+                        this.$message.warning(response.message || '修改地址失败');
                     }
-                }).catch(err=>{
-                    console.log(err);
-                })
+                }).catch(() => {
+                    this.$message.error('网络错误，请稍后重试');
+                }).finally(() => {
+                    this.submitting = false;
+                });
             },
-            //处理删除地址
+            // 处理删除地址
             delAddress(id){
-                this.$confirm('是否要进行删除操作?', '提示', {
-                    confirmButtonText: '确定',
+                this.$confirm('确定要删除这个收货地址吗？', '删除确认', {
+                    confirmButtonText: '确定删除',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    reqDelAddress(id).then(response=>{
-                        console.log(response);
-                        if(response.code==200){
-                            this.$message({
-                                message: response.message,
-                                type: "success"
-                            });
+                    reqDelAddress(id).then(response => {
+                        if(response.code === 200){
+                            this.$message.success('地址删除成功');
                             this.getAddressList();
-                        }else{
-                            this.$message({
-                                message: response.message,
-                                type: "warning"
-                            })
+                        } else {
+                            this.$message.warning(response.message || '删除地址失败');
                         }
-                    }).catch(err=>{
-                        console.log(err);
-                    })
-                }).catch(()=>{
-                    console.log("取消删除了");
+                    }).catch(() => {
+                        this.$message.error('网络错误，请稍后重试');
+                    });
+                }).catch(() => {
+                    // 用户取消删除
                 });
             },
 
@@ -226,63 +303,174 @@
 </script>
 
 <style scoped>
+/* 主容器 */
+.content {
+  margin: 10px auto;
+  max-width: 1200px;
+  width: 95%;
+  background-color: white;
+  padding: 30px 20px;
+  min-height: 600px;
+  box-sizing: border-box;
+}
 
-  .content{
-    margin: 10px auto;
-    width:1000px;
-    background-color: white;
-    padding: 30px 20px;
+/* 头部区域 */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.header-section h1 {
+  color: #333;
+  font-family: "Microsoft YaHei", sans-serif;
+  font-size: 24px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-section h1 i {
+  color: #409eff;
+}
+
+/* 地址容器 */
+.address-container {
+  min-height: 400px;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+}
+
+.empty-state i {
+  font-size: 64px;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* 地址网格布局 */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* 地址卡片 */
+.address-card {
+  border: 1px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fff;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.address-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: #409eff;
+  transform: translateY(-2px);
+}
+
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.user-info .name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.user-info .phone {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 地址详情 */
+.address-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.address-detail i {
+  color: #409eff;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.address-detail span {
+  color: #555;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+/* 卡片操作 */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.delete-btn {
+  color: #f56c6c !important;
+}
+
+.delete-btn:hover {
+  color: #f78989 !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .content {
+    padding: 20px 15px;
   }
-  h1{
-    color: #757575;
-    font-family: 新宋体;
+
+  .header-section {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
   }
-  .box_info{
-    width: 960px;
-    margin: 10px auto;
+
+  .address-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
-  .address_list{
-    width: 280px;
-    height: 180px;
-    border: 1px solid #cacaca;
-    display: inline-block;
-    margin-right: 20px;
-    margin-top: 20px;
-    padding: 20px;
-    vertical-align: top;
+
+  .card-header {
+    flex-direction: column;
+    gap: 10px;
   }
-  .name{
-    width: 240px;
-    height: 40px;
-    font-size: 18px;
-  }
-  .tel{
-    width: 240px;
-    height: 30px;
-    font-size: 14px;
-    color: #757575;
-  }
-  .detail{
-    width: 240px;
-    height: 30px;
-    font-size: 14px;
-    color: #757575;
-  }
-  .foot{
-    width: 240px;
-    height: 60px;
-    font-size: 14px;
-    color: #ff6700;
-    line-height: 60px;
-  }
-  .add{
-    width:80px;
-    height: 80px;
-    margin-top: 40px;
-    margin-left: 75px;
-    /*background-color: #8acfd1;*/
-    font-size: 30px;
-    color: #757575;
-    text-align: center;
-  }
+}
 </style>

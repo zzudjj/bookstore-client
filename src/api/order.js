@@ -25,6 +25,12 @@ export const reqAdminGetOrderListWithParams = (params) => ajax(BASE_URL+"/getAdm
 //管理员得到订单的明细getOrderDto
 export const reqAdminGetOrderDetail = (id) => ajax(BASE_URL+"/getOrderDto",{id})
 
+//用户获取订单详情
+export const reqGetOrderDetail = (orderId, token) => ajax(BASE_URL+"/getUserOrderDetail", {orderId}, 'GET', token)
+
+//获取用户订单统计信息
+export const reqGetUserOrderStats = (token) => ajax(BASE_URL+"/getUserOrderStats", {}, 'GET', token)
+
 //删除订单
 export const reqDelOrder = (id) => ajax(BASE_URL+"/delOrder",{id})
 

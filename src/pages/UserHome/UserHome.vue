@@ -94,11 +94,11 @@
                     <span>优惠券中心</span>
                   </router-link>
                   <router-link
-                    to="/user/evaluate"
+                    to="/user/myComments"
                     class="nav-item"
-                    :class="{ 'active': $route.path === '/user/evaluate' }">
-                    <i class="el-icon-star-on"></i>
-                    <span>评价管理</span>
+                    :class="{ 'active': $route.path === '/user/myComments' }">
+                    <i class="el-icon-chat-dot-round"></i>
+                    <span>我的评价</span>
                   </router-link>
                 </div>
               </div>
@@ -140,23 +140,6 @@
                     :class="{ 'active': $route.path === '/user/record' }">
                     <i class="el-icon-document-copy"></i>
                     <span>服务记录</span>
-                  </router-link>
-                </div>
-              </div>
-
-              <!-- 🔒 账户安全 -->
-              <div class="nav-section">
-                <div class="section-header">
-                  <i class="el-icon-lock"></i>
-                  <span>账户安全</span>
-                </div>
-                <div class="nav-items">
-                  <router-link
-                    to="/user/pwdManage"
-                    class="nav-item"
-                    :class="{ 'active': $route.path === '/user/pwdManage' }">
-                    <i class="el-icon-key"></i>
-                    <span>修改密码</span>
                   </router-link>
                 </div>
               </div>

@@ -49,6 +49,8 @@ import PwdManage from "../components/UserHome/manage/PwdManage";
 import UserInfo from "../components/UserHome/manage/UserInfo";
 import Evaluate from "../components/UserHome/order/Evaluate";
 import UserOrder from "../components/UserHome/order/UserOrder";
+import MyComments from "../components/UserHome/order/MyComments";
+import OrderReview from "../components/UserHome/order/OrderReview";
 import ApplyService from "../components/UserHome/service/ApplyService";
 import Record from "../components/UserHome/service/Record";
 
@@ -468,6 +470,26 @@ export default new Router({
           path: "evaluate",
           name: "Evaluate",
           component: Evaluate
+        },
+        {
+          path: "myComments",
+          name: "MyComments",
+          component: MyComments,
+          meta: {
+            title: '我的评价',
+            requiresAuth: true,
+            requiresUser: true,
+          }
+        },
+        {
+          path: "orderReview",
+          name: "OrderReview",
+          component: OrderReview,
+          meta: {
+            title: '评价订单',
+            requiresAuth: true,
+            requiresUser: true,
+          }
         },
         {
           path: "userOrder",

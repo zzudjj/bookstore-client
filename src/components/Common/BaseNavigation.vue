@@ -9,7 +9,7 @@
         </router-link>
       </div>
 
-      <!-- 主导航菜单 - 保持原有功能并美化 -->
+      <!-- 主导航菜单 -->
       <div class="nav-menu">
         <el-menu
           :default-active="$route.path"
@@ -26,21 +26,6 @@
             <span>首页</span>
           </el-menu-item>
 
-          <el-submenu index="/auth" class="menu-submenu">
-            <template slot="title">
-              <i class="el-icon-user menu-icon"></i>
-              <span>登录|注册</span>
-            </template>
-            <el-menu-item index="/login">
-              <i class="el-icon-key"></i>
-              <span>登录</span>
-            </el-menu-item>
-            <el-menu-item index="/register">
-              <i class="el-icon-user-solid"></i>
-              <span>注册</span>
-            </el-menu-item>
-          </el-submenu>
-
           <el-menu-item index="/cart" class="menu-item">
             <el-badge :value="cartCount" :hidden="cartCount === 0" class="cart-badge">
               <i class="el-icon-shopping-cart-2 menu-icon"></i>
@@ -48,14 +33,14 @@
             <span>购物车</span>
           </el-menu-item>
 
-          <el-menu-item index="/user/userInfo" class="menu-item">
-            <i class="el-icon-message menu-icon"></i>
-            <span>消息</span>
-          </el-menu-item>
-
           <el-menu-item index="/user/userOrder" class="menu-item">
             <i class="el-icon-document menu-icon"></i>
             <span>我的订单</span>
+          </el-menu-item>
+
+          <el-menu-item index="/user/mesNotice" class="menu-item">
+            <i class="el-icon-message menu-icon"></i>
+            <span>消息</span>
           </el-menu-item>
 
           <el-menu-item index="/user/userCenter" class="menu-item">
@@ -69,13 +54,38 @@
             <span>公告</span>
           </el-menu-item>
 
-          <!-- 网站介绍 -->
+          <!-- 关于我们 -->
           <el-menu-item index="/about" class="menu-item">
             <i class="el-icon-info menu-icon"></i>
-            <span>网站介绍</span>
+            <span>关于我们</span>
           </el-menu-item>
 
         </el-menu>
+      </div>
+
+      <!-- 右侧登录注册区域 -->
+      <div class="nav-auth">
+        <el-dropdown trigger="hover" placement="bottom-end">
+          <span class="auth-trigger">
+            <i class="el-icon-user-solid auth-icon"></i>
+            <span>登录</span>
+            <i class="el-icon-arrow-down auth-arrow"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown" class="auth-dropdown">
+            <el-dropdown-item>
+              <router-link to="/login" class="dropdown-link">
+                <i class="el-icon-key"></i>
+                <span>登录</span>
+              </router-link>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <router-link to="/register" class="dropdown-link">
+                <i class="el-icon-user-solid"></i>
+                <span>注册</span>
+              </router-link>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </div>
   </div>
@@ -161,6 +171,8 @@ export default {
   flex: 1;
   display: flex;
   justify-content: center;
+  margin: 0 10px;
+  min-width: 0; /* 允许收缩 */
 }
 
 /* Element UI 菜单样式覆盖 */
@@ -177,11 +189,13 @@ export default {
   border: none !important;
   color: rgba(255, 255, 255, 0.9) !important;
   font-weight: 500;
-  padding: 0 20px !important;
-  margin: 0 5px;
+  padding: 0 12px !important;
+  margin: 0 2px;
   border-radius: 8px;
   transition: all 0.3s ease !important;
   position: relative;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .modern-menu .el-menu-item:hover,
@@ -230,29 +244,145 @@ export default {
   box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4) !important;
 }
 
+/* 🔐 右侧登录注册区域 */
+.nav-auth {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  width: 140px; /* 固定宽度 */
+  justify-content: flex-end;
+}
+
+.auth-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+}
+
+.auth-trigger:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.auth-icon {
+  font-size: 16px;
+}
+
+.auth-arrow {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.auth-trigger:hover .auth-arrow {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单链接样式 */
+.dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  width: 100%;
+}
+
+.dropdown-link:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
 /* 📱 响应式设计 */
+@media (max-width: 1400px) {
+  .modern-menu .el-menu-item,
+  .modern-menu .el-submenu > .el-submenu__title {
+    padding: 0 8px !important;
+    margin: 0 1px;
+    font-size: 13px;
+  }
+
+  .nav-auth {
+    width: 120px;
+  }
+
+  .auth-trigger {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 1200px) {
   .nav-container {
     padding: 0 15px;
   }
 
+  .nav-menu {
+    margin: 0 5px;
+  }
+
   .modern-menu .el-menu-item,
   .modern-menu .el-submenu > .el-submenu__title {
-    padding: 0 15px !important;
-    margin: 0 2px;
+    padding: 0 6px !important;
+    margin: 0 1px;
+    font-size: 12px;
+  }
+
+  .nav-auth {
+    width: 100px;
+  }
+
+  .auth-trigger {
+    padding: 8px 8px;
+    font-size: 12px;
+  }
+
+  .auth-trigger span {
+    display: none;
+  }
+
+  .auth-icon {
+    font-size: 16px;
   }
 }
 
 @media (max-width: 768px) {
   .nav-container {
     padding: 0 10px;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 70px;
+  }
+
+  .nav-menu {
+    margin: 0 10px;
+    order: 2;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav-auth {
+    order: 1;
+    margin-left: auto;
   }
 
   .modern-menu .el-menu-item,
   .modern-menu .el-submenu > .el-submenu__title {
-    padding: 0 10px !important;
+    padding: 0 8px !important;
     margin: 0 1px;
     font-size: 14px;
+    height: 50px !important;
+    line-height: 50px !important;
   }
 
   .nav-brand .brand-text {
@@ -261,6 +391,19 @@ export default {
 
   .nav-brand .logo-icon {
     font-size: 24px;
+  }
+
+  .auth-trigger {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .auth-trigger span {
+    display: none;
+  }
+
+  .auth-icon {
+    font-size: 18px;
   }
 }
 

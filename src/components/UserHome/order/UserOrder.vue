@@ -890,22 +890,18 @@
 
             // 评价订单
             reviewOrder(order) {
-                this.$confirm('确定要对这个订单进行评价吗？', '评价订单', {
-                    confirmButtonText: '去评价',
-                    cancelButtonText: '取消',
-                    type: 'info'
-                }).then(() => {
-                    // 这里可以实现跳转到评价页面的逻辑
-                    this.$message.info('评价功能开发中...');
+                // 检查订单状态
+                if (order.orderStatus !== '已完成') {
+                    this.$message.warning('只有已完成的订单才能评价');
+                    return;
+                }
 
-                    // 未来可以实现的逻辑：
-                    // 1. 跳转到评价页面
-                    // 2. 传递订单信息和商品信息
-                    // 3. 提交评价后更新订单状态
-
-                    console.log('评价订单:', order);
-                }).catch(() => {
-                    this.$message.info('已取消评价');
+                // 跳转到评价页面
+                this.$router.push({
+                    path: '/user/orderReview',
+                    query: {
+                        orderId: order.orderId
+                    }
                 });
             },
 

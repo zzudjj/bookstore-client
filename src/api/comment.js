@@ -19,5 +19,19 @@ export const reqAddComment = (data, token) =>
   ajax(BASE_URL + '/add', data, 'POST', token);
 
 // 管理员获取所有评论
-export const reqAdminGetAllComments = (page, pageSize, token) =>
-  ajax(BASE_URL + `/admin/getAllComments?page=${page}&pageSize=${pageSize}`, {}, 'GET', token); 
+export const reqAdminGetAllComments = (page, pageSize, token, keyword = '') => {
+  let url = BASE_URL + `/admin/getAllComments?page=${page}&pageSize=${pageSize}`;
+  if (keyword && keyword.trim()) {
+    url += `&keyword=${encodeURIComponent(keyword.trim())}`;
+  }
+  return ajax(url, {}, 'GET', token);
+};
+
+// 获取当前用户的评论列表
+export const reqGetMyComments = (page, pageSize, token, keyword = '') => {
+  let url = BASE_URL + `/getMyComments?page=${page}&pageSize=${pageSize}`;
+  if (keyword && keyword.trim()) {
+    url += `&keyword=${encodeURIComponent(keyword.trim())}`;
+  }
+  return ajax(url, {}, 'GET', token);
+};

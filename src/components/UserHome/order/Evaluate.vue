@@ -23,9 +23,9 @@
               <el-image class="bookImg" v-for="(img,index) in order.coverImgList" :src="img" :key="index" fit="fill"></el-image>
             </div>
             <div class="book_action">
-              <button class="plainBtn">订单详情</button>
+              <button class="plainBtn" @click="goToOrderDetail(order.orderId)">订单详情</button>
               <br>
-              <button class="plainBtn" style="background-color: #ff6600;color: white">去评价</button>
+              <button class="plainBtn" style="background-color: #ff6600;color: white" @click="goToReview(order)">去评价</button>
               <br>
             </div>
           </div>
@@ -157,6 +157,24 @@
                     })
                 })
             },
+
+            // 跳转到订单详情
+            goToOrderDetail(orderId) {
+                this.$router.push({
+                    path: '/user/orderDetail',
+                    query: { orderId }
+                });
+            },
+
+            // 跳转到评价页面
+            goToReview(order) {
+                this.$router.push({
+                    path: '/user/orderReview',
+                    query: {
+                        orderId: order.orderId
+                    }
+                });
+            }
         }
     }
 </script>

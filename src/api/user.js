@@ -52,3 +52,9 @@ export const reqGetUserInfo = (account)=>ajax(BASE_URL+'/getUserInfo',{account})
 //修改密码
 export const reqModUserPwd = (account,oldPassword,newPassword)=>ajax(BASE_URL+'/modifyUserPwd',{account,oldPassword,newPassword})
 
+//更新用户信息
+export const reqUpdateUserInfo = (userInfo, token) => ajax(BASE_URL+'/updateUserInfo', userInfo, 'POST', token)
+
+//修改密码（新版本）
+export const reqUpdatePassword = (passwordInfo, token) => ajax(BASE_URL+'/updatePassword', passwordInfo, 'POST', token)
+

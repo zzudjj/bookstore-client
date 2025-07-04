@@ -11,109 +11,98 @@
         </div>
       </div>
       <div class="user_action">
-        <p> <span>账号安全:</span><span>普通</span></p>
-        <p> <span>绑定手机:</span><span>18370098989</span></p>
-        <p> <span>绑定邮箱:</span><span>123@qq.com</span></p>
+        <p> <span>注册邮箱:</span><span>{{user.account}}</span></p>
+        <p> <span>注册时间:</span><span>{{formatDate(user.registerTime)}}</span></p>
+        <p> <span>用户状态:</span><span :class="user.enable ? 'status-active' : 'status-disabled'">{{user.enable ? '正常' : '已禁用'}}</span></p>
       </div>
     </div>
 
     <div class="box_info">
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="账号安全" name="first">
+        <el-tab-pane label="基本信息" name="first">
           <div class="tab_box">
-            <div class="secure_box">
-              <div class="secure_logo">
-                <i class="el-icon-lock"></i>
+            <div class="info_display">
+              <div class="info_item">
+                <label>用户昵称：</label>
+                <span>{{user.name}}</span>
               </div>
-              <div class="secure_title">
-                <h3>账号密码</h3>
-                <p class="text_msg">用于保护帐号信息和登录安全</p>
+              <div class="info_item">
+                <label>注册邮箱：</label>
+                <span>{{user.account}}</span>
               </div>
-              <div class="secure_action">
-                <el-button plain>修改</el-button>
+              <div class="info_item">
+                <label>性别：</label>
+                <span>{{user.gender || '未设置'}}</span>
               </div>
-            </div>
-            <div class="secure_box">
-              <div class="secure_logo">
-                <i class="el-icon-message"></i>
+              <div class="info_item">
+                <label>注册时间：</label>
+                <span>{{formatDate(user.registerTime)}}</span>
               </div>
-              <div class="secure_title">
-                <h3>安全邮箱</h3>
-                <p class="text_msg">安全邮箱将可用于登录小米帐号和重置密码</p>
+              <div class="info_item">
+                <label>账户状态：</label>
+                <span :class="user.enable ? 'status-active' : 'status-disabled'">
+                  {{user.enable ? '正常' : '已禁用'}}
+                </span>
               </div>
-              <div class="secure_action">
-                <el-button plain>修改</el-button>
-              </div>
-            </div>
-            <div class="secure_box">
-              <div class="secure_logo">
-                <i class="el-icon-phone-outline"></i>
-              </div>
-              <div class="secure_title">
-                <h3>安全手机</h3>
-                <p class="text_msg">安全手机可以用于登录小米帐号，重置密码或其他安全验证</p>
-              </div>
-              <div class="secure_action">
-                <el-button plain>修改</el-button>
+              <div class="info_item">
+                <label>个人简介：</label>
+                <span class="info-text">{{user.info || '暂无个人简介'}}</span>
               </div>
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="个人信息" name="second">
+        <el-tab-pane label="修改信息" name="second">
           <div class="tab_box">
             <div class="modify_box">
-              <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="80px">
-                <el-form-item prop="account" label="昵称">
-                  <el-input type="text" v-model="ruleForm.account" autocomplete="off" placeholder="请输入手机号或者邮箱"></el-input>
+              <el-form :model="userForm" status-icon :rules="rules" ref="userForm" label-width="100px">
+                <el-form-item prop="name" label="用户昵称">
+                  <el-input type="text" v-model="userForm.name" autocomplete="off" placeholder="请输入用户昵称"></el-input>
                 </el-form-item>
-                <el-form-item prop="password" label="出生日期">
-                  <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.account" style="width: 100%;"></el-date-picker>
+                <el-form-item prop="gender" label="性别">
+                  <el-radio-group v-model="userForm.gender">
+                    <el-radio label="男">男</el-radio>
+                    <el-radio label="女">女</el-radio>
+                    <el-radio label="">不设置</el-radio>
+                  </el-radio-group>
                 </el-form-item>
-                <el-form-item prop="password" label="简介">
-                  <el-input type="textarea" v-model="ruleForm.password" autocomplete="off" placeholder="请输入密码"></el-input>
+                <el-form-item prop="info" label="个人简介">
+                  <el-input
+                    type="textarea"
+                    v-model="userForm.info"
+                    autocomplete="off"
+                    placeholder="请输入个人简介"
+                    :rows="4"
+                    maxlength="200"
+                    show-word-limit>
+                  </el-input>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" style="width: 120px;">确认修改</el-button>
+                  <el-button type="primary" @click="updateUserInfo" :loading="updating">确认修改</el-button>
+                  <el-button @click="resetForm">重置</el-button>
                 </el-form-item>
               </el-form>
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="绑定授权" name="third">
+        <el-tab-pane label="修改密码" name="third">
           <div class="tab_box">
-            <div class="bind_list">
-              <el-image class="bookImg" :src="imgS1" fit="fill"></el-image>
-              <div class="bind_account">
-                <h3>新浪微博</h3>
-                <p class="text_msg">未绑定</p>
-                <button class="bind_btn">添加绑定</button>
-              </div>
+            <div class="modify_box">
+              <el-form :model="passwordForm" status-icon :rules="passwordRules" ref="passwordForm" label-width="100px">
+                <el-form-item prop="oldPassword" label="当前密码">
+                  <el-input type="password" v-model="passwordForm.oldPassword" autocomplete="off" placeholder="请输入当前密码"></el-input>
+                </el-form-item>
+                <el-form-item prop="newPassword" label="新密码">
+                  <el-input type="password" v-model="passwordForm.newPassword" autocomplete="off" placeholder="请输入新密码"></el-input>
+                </el-form-item>
+                <el-form-item prop="confirmPassword" label="确认密码">
+                  <el-input type="password" v-model="passwordForm.confirmPassword" autocomplete="off" placeholder="请再次输入新密码"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="updatePassword" :loading="updatingPassword">修改密码</el-button>
+                  <el-button @click="resetPasswordForm">重置</el-button>
+                </el-form-item>
+              </el-form>
             </div>
-            <div class="bind_list">
-              <el-image class="bookImg" :src="imgS2" fit="fill"></el-image>
-              <div class="bind_account">
-                <h3>QQ</h3>
-                <p class="text_msg">未绑定</p>
-                <button class="bind_btn">添加绑定</button>
-              </div>
-            </div>
-            <div class="bind_list">
-              <el-image class="bookImg" :src="imgS3" fit="fill"></el-image>
-              <div class="bind_account">
-                <h3>微信</h3>
-                <p class="text_msg">未绑定</p>
-                <button class="bind_btn">添加绑定</button>
-              </div>
-            </div>
-            <div class="bind_list">
-              <el-image class="bookImg" :src="imgS4" fit="fill"></el-image>
-              <div class="bind_account">
-                <h3>Apple</h3>
-                <p class="text_msg">未绑定</p>
-                <button class="bind_btn">添加绑定</button>
-              </div>
-            </div>
-
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -137,55 +126,78 @@
 
 <script>
 import { getAvatarUrl } from "../../../utils/imageUtils";
+import { reqGetUserInfo, reqUpdateUserInfo, reqUpdatePassword } from "../../../api/user";
 import axios from 'axios';
 
 export default {
     name: "UserInfo",
     data () {
-        var checkAccount = (rule, value, callback) => {
+        var validateName = (rule, value, callback) => {
             if (!value) {
-                return callback(new Error('账号不能为空'));
+                return callback(new Error('昵称不能为空'));
             }
-            setTimeout(() => {
-                if(value.length>13){
-                    callback(new Error('账号不能大于13位'));
-                }else {
-                    callback();
-                }
-            }, 1000);
-        };
-        var validatePass = (rule, value, callback) => {
-            if (value === '') {
-                callback(new Error('请输入密码'));
+            if(value.length > 20){
+                callback(new Error('昵称不能超过20个字符'));
             } else {
                 callback();
             }
         };
+
+        var validatePassword = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请输入密码'));
+            } else if (value.length < 6) {
+                callback(new Error('密码长度不能少于6位'));
+            } else {
+                callback();
+            }
+        };
+
+        var validateConfirmPassword = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请再次输入密码'));
+            } else if (value !== this.passwordForm.newPassword) {
+                callback(new Error('两次输入密码不一致'));
+            } else {
+                callback();
+            }
+        };
+
         return {
-            msg: 'Welcome to Your Vue.js App',
-            imgS: require('../../../assets/image/head.jpg'),
-            imgS1: require('../../../assets/image/weibo.png'),
-            imgS2: require('../../../assets/image/qq.png'),
-            imgS3: require('../../../assets/image/weixin.png'),
-            imgS4: require('../../../assets/image/apple.png'),
             activeName: 'first',
-            currentPage: 1,
-            page_size: 5,
-            total:20,
-            ruleForm: {
-                account: '',
-                password: '',
+            userForm: {
+                name: '',
+                gender: '',
+                info: '',
+            },
+            passwordForm: {
+                oldPassword: '',
+                newPassword: '',
+                confirmPassword: ''
             },
             rules: {
-                account: [
-                    { validator: checkAccount, trigger: 'blur' }
+                name: [
+                    { validator: validateName, trigger: 'blur' }
                 ],
-                password: [
-                    { validator: validatePass, trigger: 'blur' }
+                info: [
+                    { max: 200, message: '个人简介不能超过200个字符', trigger: 'blur' }
+                ]
+            },
+            passwordRules: {
+                oldPassword: [
+                    { required: true, message: '请输入当前密码', trigger: 'blur' }
                 ],
+                newPassword: [
+                    { validator: validatePassword, trigger: 'blur' }
+                ],
+                confirmPassword: [
+                    { validator: validateConfirmPassword, trigger: 'blur' }
+                ]
             },
             showAvatarDialog: false,
             avatarPreview: '',
+            updating: false,
+            updatingPassword: false
         }
     },
     computed: {
@@ -194,22 +206,106 @@ export default {
         }
     },
     mounted(){
-
+        this.initUserForm();
     },
     methods: {
         handleClick(tab, event) {
             console.log(tab, event);
         },
         getAvatarUrl,
+
+        // 初始化用户表单
+        initUserForm() {
+            this.userForm = {
+                name: this.user.name || '',
+                gender: this.user.gender || '',
+                info: this.user.info || ''
+            };
+        },
+
+        // 格式化日期
+        formatDate(dateStr) {
+            if (!dateStr) return '未知';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('zh-CN');
+        },
+
+        // 更新用户信息
+        updateUserInfo() {
+            this.$refs.userForm.validate((valid) => {
+                if (valid) {
+                    this.updating = true;
+                    const token = localStorage.getItem('token');
+
+                    reqUpdateUserInfo(this.userForm, token).then(response => {
+                        if (response.code === 200) {
+                            this.$message.success('信息更新成功！');
+                            // 更新store中的用户信息
+                            this.$store.commit('SET_USERINFO', {
+                                ...this.user,
+                                ...this.userForm
+                            });
+                        } else {
+                            this.$message.error(response.message || '更新失败');
+                        }
+                    }).catch(() => {
+                        this.$message.error('更新失败，请检查网络连接');
+                    }).finally(() => {
+                        this.updating = false;
+                    });
+                }
+            });
+        },
+
+        // 重置表单
+        resetForm() {
+            this.initUserForm();
+            this.$refs.userForm.clearValidate();
+        },
+
+        // 修改密码
+        updatePassword() {
+            this.$refs.passwordForm.validate((valid) => {
+                if (valid) {
+                    this.updatingPassword = true;
+                    const token = localStorage.getItem('token');
+
+                    reqUpdatePassword(this.passwordForm, token).then(response => {
+                        if (response.code === 200) {
+                            this.$message.success('密码修改成功！');
+                            this.resetPasswordForm();
+                        } else {
+                            this.$message.error(response.message || '密码修改失败');
+                        }
+                    }).catch(() => {
+                        this.$message.error('密码修改失败，请检查网络连接');
+                    }).finally(() => {
+                        this.updatingPassword = false;
+                    });
+                }
+            });
+        },
+
+        // 重置密码表单
+        resetPasswordForm() {
+            this.passwordForm = {
+                oldPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            };
+            this.$refs.passwordForm && this.$refs.passwordForm.clearValidate();
+        },
+
         beforeAvatarUpload(file) {
             this.avatarPreview = URL.createObjectURL(file);
             return true;
         },
+
         uploadAvatar(option) {
             const formData = new FormData();
             formData.append('file', option.file);
-            // 立即本地预览
             this.avatarPreview = URL.createObjectURL(option.file);
+
             axios.post('/user/uploadAvatar', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -218,9 +314,12 @@ export default {
             }).then(res => {
                 if(res.data && res.data.code === 200) {
                     this.$message.success('头像上传成功！');
-                    this.$message.info('头像已上传，服务器同步有延迟，稍后刷新页面即可看到新头像');
                     this.showAvatarDialog = false;
                     this.avatarPreview = '';
+                    // 刷新用户信息
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 } else {
                     this.$message.error(res.data.message || '上传失败');
                 }
@@ -283,7 +382,7 @@ export default {
     width: 960px;
     margin: 10px auto;
   }
-  /deep/ .el-tabs__item {
+  ::v-deep .el-tabs__item {
     height: 50px;
     line-height: 50px;
     font-size: 16px;
@@ -374,10 +473,50 @@ export default {
   }
   .modify_box{
     margin-top: 30px;
-    width: 400px;
-    height: 270px;
-    /*border: 1px solid #dfdfdf;*/
+    width: 500px;
+    min-height: 270px;
     padding: 15px;
+  }
+
+  /* 信息显示样式 */
+  .info_display {
+    padding: 20px;
+  }
+
+  .info_item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .info_item label {
+    width: 100px;
+    font-weight: bold;
+    color: #333;
+    margin-right: 20px;
+  }
+
+  .info_item span {
+    color: #666;
+    flex: 1;
+  }
+
+  .info-text {
+    line-height: 1.6;
+    max-width: 400px;
+    word-wrap: break-word;
+  }
+
+  .status-active {
+    color: #67c23a;
+    font-weight: bold;
+  }
+
+  .status-disabled {
+    color: #f56c6c;
+    font-weight: bold;
   }
 
 </style>
