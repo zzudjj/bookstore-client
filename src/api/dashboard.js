@@ -5,8 +5,6 @@ const BASE_URL = "/dashboard";
 /**
  * 管理员仪表盘API接口
  * 
- * @author: 黄龙
- * @date: 2025/07/03
  * @description: 提供管理员仪表盘所需的各种统计数据API
  */
 
