@@ -302,8 +302,24 @@
           <el-input v-model="goodsForm.bookName" disabled></el-input>
         </el-form-item>
 
+        <el-form-item label="图书原价" v-if="goodsFormMode === 'edit'">
+          <el-input :value="`¥${goodsForm.originalPrice}`" disabled></el-input>
+        </el-form-item>
+
         <el-form-item label="秒杀价格" prop="spikePrice">
-          <el-input-number v-model="goodsForm.spikePrice" :precision="2" :min="0" style="width: 100%"></el-input-number>
+          <el-input-number
+            v-model="goodsForm.spikePrice"
+            :precision="2"
+            :min="0.01"
+            :max="goodsFormMode === 'edit' ? goodsForm.originalPrice : (selectedBook ? selectedBook.price : 999999)"
+            style="width: 100%">
+          </el-input-number>
+          <div style="color: #909399; font-size: 12px; margin-top: 4px;" v-if="goodsFormMode === 'add' && selectedBook">
+            图书原价：¥{{ selectedBook.price }}，秒杀价格不能高于原价
+          </div>
+          <div style="color: #909399; font-size: 12px; margin-top: 4px;" v-if="goodsFormMode === 'edit'">
+            秒杀价格不能高于图书原价：¥{{ goodsForm.originalPrice }}
+          </div>
         </el-form-item>
 
         <el-form-item label="秒杀库存" prop="spikeStock">
@@ -506,7 +522,22 @@
                     ],
                     spikePrice: [
                         { required: true, message: '请输入秒杀价格', trigger: 'blur' },
-                        { type: 'number', min: 0.01, message: '价格必须大于0', trigger: 'blur' }
+                        { type: 'number', min: 0.01, message: '价格必须大于0', trigger: 'blur' },
+                        {
+                            validator: (rule, value, callback) => {
+                                // 添加模式下的验证
+                                if (this.goodsFormMode === 'add' && this.selectedBook && value > this.selectedBook.price) {
+                                    callback(new Error(`秒杀价格不能超过图书原价(¥${this.selectedBook.price})`));
+                                }
+                                // 编辑模式下的验证
+                                else if (this.goodsFormMode === 'edit' && value > this.goodsForm.originalPrice) {
+                                    callback(new Error(`秒杀价格不能超过图书原价(¥${this.goodsForm.originalPrice})`));
+                                } else {
+                                    callback();
+                                }
+                            },
+                            trigger: 'blur'
+                        }
                     ],
                     spikeStock: [
                         { required: true, message: '请输入秒杀库存', trigger: 'blur' },
@@ -1062,6 +1093,16 @@
                             activityId: goodsDetail.activityId,
                             soldCount: goodsDetail.soldCount || 0
                         };
+
+                        // 设置selectedBook以便价格验证生效
+                        if (goodsDetail.book) {
+                            this.selectedBook = {
+                                id: goodsDetail.book.id,
+                                bookName: goodsDetail.book.bookName,
+                                price: goodsDetail.originalPrice, // 使用原价作为图书价格
+                                stock: goodsDetail.book.stock || 0
+                            };
+                        }
                         this.goodsFormDialogVisible = true;
                     } else {
                         this.$message.error('获取商品详情失败');
@@ -1117,8 +1158,20 @@
         handleBookChange(bookId) {
             this.selectedBook = this.availableBooks.find(book => book.id === bookId);
             if (this.selectedBook) {
+                // 设置秒杀价格默认为图书原价
+                this.goodsForm.spikePrice = this.selectedBook.price;
+                // 设置原价字段
+                this.goodsForm.originalPrice = this.selectedBook.price;
                 // 重置秒杀库存，不能超过图书库存
                 this.goodsForm.spikeStock = Math.min(this.goodsForm.spikeStock, this.selectedBook.stock);
+
+                // 触发表单验证，确保价格限制生效
+                this.$nextTick(() => {
+                    if (this.$refs.goodsForm) {
+                        this.$refs.goodsForm.validateField('spikePrice');
+                        this.$refs.goodsForm.validateField('spikeStock');
+                    }
+                });
             }
         },
 

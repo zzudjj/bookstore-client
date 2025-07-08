@@ -265,14 +265,17 @@ export default {
 
               // 根据用户类型跳转
               setTimeout(() => {
-                if (user.manage) {
+                console.log('准备跳转，用户信息:', user);
+                if (user && user.manage) {
+                  console.log('管理员用户，跳转到管理后台');
                   this.$router.push({ path: '/admin/home' });
                 } else {
                   // 跳转到登录前的页面或首页
                   const redirect = this.$route.query.redirect || '/';
+                  console.log('普通用户，跳转到:', redirect);
                   this.$router.push({ path: redirect });
                 }
-              }, 1000);
+              }, 500);
 
             } else {
               this.$message({

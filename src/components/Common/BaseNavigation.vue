@@ -65,7 +65,8 @@
 
       <!-- 右侧登录注册区域 -->
       <div class="nav-auth">
-        <el-dropdown trigger="hover" placement="bottom-end">
+        <!-- 未登录状态 -->
+        <el-dropdown v-if="!isLoggedIn" trigger="hover" placement="bottom-end">
           <span class="auth-trigger">
             <i class="el-icon-user-solid auth-icon"></i>
             <span>登录</span>
@@ -86,12 +87,41 @@
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
+
+        <!-- 已登录状态 -->
+        <el-dropdown v-else trigger="hover" placement="bottom-end" @command="handleUserCommand">
+          <span class="auth-trigger user-logged">
+            <i class="el-icon-user-solid auth-icon"></i>
+            <span>{{ userName }}</span>
+            <i class="el-icon-arrow-down auth-arrow"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown" class="auth-dropdown">
+            <el-dropdown-item command="profile">
+              <i class="el-icon-user"></i>
+              <span>个人中心</span>
+            </el-dropdown-item>
+            <el-dropdown-item command="orders">
+              <i class="el-icon-document"></i>
+              <span>我的订单</span>
+            </el-dropdown-item>
+            <el-dropdown-item v-if="isAdmin" command="admin">
+              <i class="el-icon-setting"></i>
+              <span>管理后台</span>
+            </el-dropdown-item>
+            <el-dropdown-item divided command="logout">
+              <i class="el-icon-switch-button"></i>
+              <span>退出登录</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex'
+
 export default {
   name: "BaseNavigation",
   data() {
@@ -99,11 +129,77 @@ export default {
       cartCount: 0 // 隐藏购物车数量提示
     };
   },
+  computed: {
+    ...mapGetters(['getUser']),
+
+    // 是否已登录
+    isLoggedIn() {
+      return this.getUser && this.getUser.account;
+    },
+
+    // 用户名
+    userName() {
+      if (this.isLoggedIn) {
+        return this.getUser.name || this.getUser.account || '用户';
+      }
+      return '';
+    },
+
+    // 是否是管理员
+    isAdmin() {
+      return this.isLoggedIn && this.getUser.manage;
+    }
+  },
   methods: {
     handleSelect(key, keyPath) {
       // 处理菜单选择
       console.log('Selected:', key, keyPath);
-    }
+    },
+
+    // 处理用户菜单命令
+    handleUserCommand(command) {
+      switch (command) {
+        case 'profile':
+          this.$router.push('/user/userCenter');
+          break;
+        case 'orders':
+          this.$router.push('/user/userOrder');
+          break;
+        case 'admin':
+          this.$router.push('/admin/home');
+          break;
+        case 'logout':
+          this.logout();
+          break;
+      }
+    },
+
+    // 退出登录
+    logout() {
+      this.$confirm('确定要退出登录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.REMOVE_INFO();
+        this.$message({
+          type: 'success',
+          message: '退出成功！',
+          duration: 1500
+        });
+        // 如果当前在需要登录的页面，跳转到首页
+        if (this.$route.meta.requiresAuth || this.$route.path.includes('/user/') || this.$route.path.includes('/admin/')) {
+          this.$router.push('/');
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        });
+      });
+    },
+
+    ...mapMutations(['REMOVE_INFO'])
   }
 }
 </script>
@@ -286,6 +382,16 @@ export default {
 
 .auth-trigger:hover .auth-arrow {
   transform: rotate(180deg);
+}
+
+/* 已登录用户样式 */
+.user-logged {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.user-logged:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* 下拉菜单链接样式 */

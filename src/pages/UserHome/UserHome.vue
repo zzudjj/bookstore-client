@@ -120,29 +120,7 @@
                 </div>
               </div>
 
-              <!-- 🛠️ 售后服务 -->
-              <div class="nav-section">
-                <div class="section-header">
-                  <i class="el-icon-service"></i>
-                  <span>售后服务</span>
-                </div>
-                <div class="nav-items">
-                  <router-link
-                    to="/user/applyService"
-                    class="nav-item"
-                    :class="{ 'active': $route.path === '/user/applyService' }">
-                    <i class="el-icon-phone"></i>
-                    <span>申请服务</span>
-                  </router-link>
-                  <router-link
-                    to="/user/record"
-                    class="nav-item"
-                    :class="{ 'active': $route.path === '/user/record' }">
-                    <i class="el-icon-document-copy"></i>
-                    <span>服务记录</span>
-                  </router-link>
-                </div>
-              </div>
+
 
             </div>
           </aside>

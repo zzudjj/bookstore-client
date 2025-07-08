@@ -593,8 +593,7 @@
                     ],
                     '已完成': [
                         { text: '查看详情', type: 'default', action: 'detail' },
-                        { text: '再次购买', type: 'primary', action: 'rebuy' },
-                        { text: '申请售后', type: 'default', action: 'aftersale' }
+                        { text: '再次购买', type: 'primary', action: 'rebuy' }
                     ],
                     '已取消': [
                         { text: '查看详情', type: 'default', action: 'detail' },
@@ -627,9 +626,6 @@
                         break;
                     case 'rebuy':
                         this.$message.info('再次购买功能开发中...');
-                        break;
-                    case 'aftersale':
-                        this.$message.info('售后申请功能开发中...');
                         break;
                 }
             },

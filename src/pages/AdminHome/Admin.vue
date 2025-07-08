@@ -84,14 +84,6 @@
               <i class="el-icon-setting"></i>
               <span>订单设置</span>
             </el-menu-item>
-            <el-menu-item index="/admin/returnOrder" class="submenu-item">
-              <i class="el-icon-refresh-left"></i>
-              <span>退货处理</span>
-            </el-menu-item>
-            <el-menu-item index="/admin/returnReason" class="submenu-item">
-              <i class="el-icon-warning"></i>
-              <span>退货原因</span>
-            </el-menu-item>
           </el-submenu>
 
           <!-- 🎯 营销管理 -->

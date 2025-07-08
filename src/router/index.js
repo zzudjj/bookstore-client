@@ -13,8 +13,7 @@ import BookList from "../components/AdminHome/bookNav/book/BookList";
 import AddBook from "../components/AdminHome/bookNav/book/components/BookDetail";
 import OrderList from "../components/AdminHome/orderNav/OrderList";
 import OrderSet from "../components/AdminHome/orderNav/OrderSet";
-import ReturnOrder from "../components/AdminHome/orderNav/ReturnOrder";
-import ReturnReason from "../components/AdminHome/orderNav/ReturnReason";
+
 import BookRecommend from "../components/AdminHome/market/BookRecommend";
 import CouponManagement from "../pages/AdminHome/CouponManagement";
 import SpikeSet from "../components/AdminHome/market/SpikeSet";
@@ -51,8 +50,8 @@ import Evaluate from "../components/UserHome/order/Evaluate";
 import UserOrder from "../components/UserHome/order/UserOrder";
 import MyComments from "../components/UserHome/order/MyComments";
 import OrderReview from "../components/UserHome/order/OrderReview";
-import ApplyService from "../components/UserHome/service/ApplyService";
-import Record from "../components/UserHome/service/Record";
+
+
 
 import BuyPage from "../pages/BuyPage/BuyPage";
 import OrderDetail from "../components/AdminHome/orderNav/OrderDetail";
@@ -261,26 +260,7 @@ export default new Router({
             requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
           },
         },
-        {
-          path: 'returnOrder',
-          name: 'ReturnOrder',
-          component: ReturnOrder,
-          meta: {
-            title: '退单页面',
-            url: '/admin/returnOrder',
-            requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
-          },
-        },
-        {
-          path: 'returnReason',
-          name: 'ReturnReason',
-          component: ReturnReason,
-          meta: {
-            title: '退单理由',
-            url: '/admin/returnReason',
-            requiresAuth: true // 添加该字段，表示进入这个路由是需要登录的
-          },
-        },
+
         {
           path: 'bookRecommend',
           name: 'BookRecommend',
@@ -501,16 +481,8 @@ export default new Router({
           name: "UserOrderDetail",
           component: UserOrderDetail
         },
-        {
-          path: "applyService",
-          name: "ApplyService",
-          component: ApplyService
-        },
-        {
-          path: "record",
-          name: "Record",
-          component: Record
-        }
+
+
       ]
     },
     {
